@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup up</title>
+    <!--link-->
+    <link rel="stylesheet" href="/css/signup.css">
+</head>
+<body>
+    <div class="container">
+        <div class="main_container">
+            <div class="img"></div>
+            <div class="info_container">
+                <h2>Signup</h2>
+                <div class="form_div">
+                    <form name="signup_form" action="/signupuser" method="POST" onsubmit="return validate()">
+                        <!--username-->
+                        <label for="username">Username</label>
+                        <input type="text" name="username" value="" id="username" required>
+
+                        <!--password-->
+                        <label for="password">Password</label>
+                        <input type="password" name="password" value="" id="password" required>
+
+                        <!--confirm password-->
+                        <label for="confirm_password">Confirm Password</label>
+                        <input type="password" name="confirm_password" value="" id="confirm_password" required> 
+
+                        <div style="text-align:center">
+                            <input type="submit" value="Signup">
+                        </div>
+                        <div style="text-align: center; margin-top: 25px;" >
+                            
+                            <p style="color:#C0C0C0; font-size: 1.1em;">Already have an account? <a href="/"><span style="color: #FD9322;">Login</span></a></p>
+                        </div>
+                        
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function validate(){
+            const username = document.forms["signup_form"]["username"].value;
+            const password = document.forms["signup_form"]["password"].value;
+            const confirm_password = document.forms["signup_form"]["confirm_password"].value;
+
+            var regexp = /^\S*$/;
+
+            if(regexp.test(username) == true && regexp.test(password) == true && regexp.test(confirm_password) == true){
+                if(password == confirm_password){
+                    return true;
+                }else{
+                    alert("Password and Confirm password does'nt match");
+                    return false;
+                }
+            }else{
+                alert("Spaces are not allowed in Username and Password");
+                return false;
+            }
+        }
+        
+
+    </script>
+
+</body>
+</html>

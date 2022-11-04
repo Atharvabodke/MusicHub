@@ -1,0 +1,8 @@
+{
+    "musichub":{
+        "dbConfig":{
+            "url":"mongodb+srv://atharvabodke:mKGry75hcLUBiy5x@musichub.3oqcj6j.mongodb.net/?retryWrites=true&w=majority",
+            "local_url":"mongodb://127.0.0.1/musichub"
+        }
+    }
+}

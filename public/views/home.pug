@@ -1,0 +1,222 @@
+doctype html 
+html(lang="en")
+    head 
+        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        title MusicHub 
+
+        //style
+        link(rel="stylesheet", href="/css/home.css")
+
+        //JQuery
+        script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js")
+
+        //socket
+        script(src="/socket.io/socket.io.js") 
+        
+    body 
+        .main 
+            .navbar_container
+                img(src="/assets/images/musichub.jpg", alt="logo",class="logo")
+                .navbar
+                    ul 
+                        li
+                            span 
+                                img(src="/assets/icons/home.png", alt="logo", class="navicon")
+                            p Home
+                        li
+                            span 
+                                img(src="/assets/icons/friends.png", alt="logo", class="navicon")
+                            p Add Friends
+                        li
+                            span 
+                                img(src="/assets/icons/library.png", alt="logo", class="navicon")
+                            p Playlist
+                .profile_con 
+                    .profile_icon_holder 
+                        img(src="/assets/icons/dot.png", alt="dot",class="dot")
+                        img(src="/assets/icons/profile.png", alt="profile", class="profile_img")
+                    .profile_info_con 
+                        p Welcome
+                        h1 Atharva  
+                        .profile_info_holder 
+                            .profile_friends_con 
+                                p 17
+                                h3 Friends
+                            .profile_logout_con 
+                                button Logout
+
+            .content 
+                header 
+                    .searchbar 
+                        input(type="text",id="search_song_input", placeholder="Songs, Artist",onkeyup="search()")
+                        span
+                            button() 
+                    .song_req 
+                        .song_req_holder(onclick="openDiv('song_noti_con')")
+                            p(class="song_req_count") 7
+                            img(src="/assets/icons/msg.png", alt="msg" class="song_req_logo")
+
+                            //song req notification
+                            .song_req_noti_con(id="song_noti_con")
+                                h3 Room request
+                                    span(id="close_song_div",onclick="closeDiv('song_noti_con')") 
+                                        img(src="/assets/icons/close.png", alt="close")
+                                .song_noti_list 
+
+                                    //song request card
+                                    .song_req_noti_card 
+                                        .song_req_noti_img 
+                                            img(src="/assets/icons/profile.png", alt="profile")
+                                        .song_req_noti_info 
+                                            p Username
+                                        .song_req_noti_controls 
+                                            .song_req_noti_controls_sub 
+                                                img(src="/assets/icons/cross.png", alt="cross") 
+                                            .song_req_noti_controls_sub 
+                                                img(src="/assets/icons/correct.png", alt="correct") 
+                                    .song_req_noti_card 
+                                        .song_req_noti_img 
+                                            img(src="/assets/icons/profile.png", alt="profile")
+                                        .song_req_noti_info 
+                                            p Username
+                                        .song_req_noti_controls 
+                                            .song_req_noti_controls_sub 
+                                                img(src="/assets/icons/cross.png", alt="cross") 
+                                            .song_req_noti_controls_sub 
+                                                img(src="/assets/icons/correct.png", alt="correct") 
+                                    .song_req_noti_card 
+                                        .song_req_noti_img 
+                                            img(src="/assets/icons/profile.png", alt="profile")
+                                        .song_req_noti_info 
+                                            p Username
+                                        .song_req_noti_controls 
+                                            .song_req_noti_controls_sub 
+                                                img(src="/assets/icons/cross.png", alt="cross") 
+                                            .song_req_noti_controls_sub 
+                                                img(src="/assets/icons/correct.png", alt="correct") 
+                                    .song_req_noti_card 
+                                        .song_req_noti_img 
+                                            img(src="/assets/icons/profile.png", alt="profile")
+                                        .song_req_noti_info 
+                                            p Username
+                                        .song_req_noti_controls 
+                                            .song_req_noti_controls_sub 
+                                                img(src="/assets/icons/cross.png", alt="cross") 
+                                            .song_req_noti_controls_sub 
+                                                img(src="/assets/icons/correct.png", alt="correct") 
+                                    .song_req_noti_card 
+                                        .song_req_noti_img 
+                                            img(src="/assets/icons/profile.png", alt="profile")
+                                        .song_req_noti_info 
+                                            p Username
+                                        .song_req_noti_controls 
+                                            .song_req_noti_controls_sub 
+                                                img(src="/assets/icons/cross.png", alt="cross") 
+                                            .song_req_noti_controls_sub 
+                                                img(src="/assets/icons/correct.png", alt="correct") 
+                                    .song_req_noti_card 
+                                        .song_req_noti_img 
+                                            img(src="/assets/icons/profile.png", alt="profile")
+                                        .song_req_noti_info 
+                                            p Username
+                                        .song_req_noti_controls 
+                                            .song_req_noti_controls_sub 
+                                                img(src="/assets/icons/cross.png", alt="cross") 
+                                            .song_req_noti_controls_sub 
+                                                img(src="/assets/icons/correct.png", alt="correct") 
+                                    .song_req_noti_card 
+                                        .song_req_noti_img 
+                                            img(src="/assets/icons/profile.png", alt="profile")
+                                        .song_req_noti_info 
+                                            p Username
+                                        .song_req_noti_controls 
+                                            .song_req_noti_controls_sub 
+                                                img(src="/assets/icons/cross.png", alt="cross") 
+                                            .song_req_noti_controls_sub 
+                                                img(src="/assets/icons/correct.png", alt="correct") 
+
+
+
+                    .notification 
+                        .notification_holder 
+                            p(class="notification_count") 10
+                            img(src="/assets/icons/notification.png", alt="notification", class="notification_logo")
+                .songs_friends_con 
+                    .songs_holder 
+                        h2 Songs
+                        hr
+                        .songs_list 
+                        
+                            //songs card
+                            
+                            
+                            .song_card(onclick=`playSong('')`) 
+                                img(src="/assets/images/cover.jpg", alt="song")
+                                .song_info_con 
+                                    h3(class="song_name_card") test
+                                    p(class="song_artist_card") test 2
+                                    p(class="song_duration_card") test 3
+                            
+                    .online_friends_holder 
+                        h2 Online Friends
+                        hr
+                        .online_friends_list
+                            .online_friends_card 
+                                img(src="/assets/images/friends.jpg", alt="song")
+                                .online_friends_con 
+                                    h3(class="online_friend_name_card") Song name
+                                    button(class="online_friends_invite_card") Invite
+                                    p(class="online_friends_room_card") In Room
+                                            //footer
+                footer 
+                    audio(src="",id="audio" controls autoplay) 
+                    .room_con
+                        .room_holder 
+                            img(src="/assets/icons/room.png", alt="room")
+    script.
+
+        var socket = io();
+
+        socket.emit("songs");
+
+        function closeDiv(id){
+            document.getElementById(id).style.display = "none";
+        }
+        function openDiv(id){
+            document.getElementById(id).style.display = "flex";
+        }
+
+        //play song
+        function playSong(path){
+            let audio = document.getElementById("audio").setAttribute("src",path);
+        }
+
+        //search song
+        function search(){
+            let value = document.getElementById("search_song_input").value;
+            if (value.value==""){
+                
+            }
+            socket.emit("search_song",value);
+            socket.on("searched_song",(data)=>{
+                
+                let song_card = document.getElementsByClassName("song_card");
+                let song_name_card = document.getElementsByClassName("song_name_card");
+                let song_artist_card = document.getElementsByClassName("song_artist_card");
+                let song_duration_card = document.getElementsByClassName("song_duration_card");
+
+                let size = Object.keys(data).length;
+                
+                for(let i = 0; i<size;i++){
+                    song_name_card[i].innerHTML = data[i].name;
+                    song_artist_card[i].innerHTML = data[i].artist;
+                    song_duration_card[i].innerHTML = data[i].duration;
+                }
+                alert(size);
+            });
+        }
+
+        
+
+
+        

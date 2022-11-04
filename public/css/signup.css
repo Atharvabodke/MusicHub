@@ -1,0 +1,125 @@
+/*  defaults    */
+:root{
+    --primary: #16151A;
+    --secondary: #222227;
+    --tertiary: #7D8087;
+    --text-primary: #C0C0C0;
+    --white: #FFFFFF;
+    --orange: #FD9332;
+    --red: #dc3545;
+    --green: #28a745;
+}
+
+
+*{
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.container{
+    width: 100vw;
+    height: 100vh;
+    background-image: linear-gradient(var(--primary),#000000);
+    margin: auto;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.main_container{
+    width:40%;
+    height: 80%;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.main_container .img{
+    background-image: url("../assets/logo/logo.jpg");
+    width: 100%;
+    height: 10%;
+
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+}
+
+.info_container{
+    width: 100%;
+    height: fit-content;
+    padding: 10px;
+    box-shadow: 0 0 3px var(--tertiary);
+    border-radius: 20px;
+    margin-top: 10px;
+}
+
+.info_container h2{
+    text-align: center;
+    font-family: sans-serif;
+    font-size: 2em; 
+    color: var(--text-primary);
+    overflow: hidden;
+}
+
+.form_div{
+    width: 100%;
+    height: fit-content;
+    background-color: inherit;
+}
+
+.form_div form{
+    width: 100%;
+    height: 100%;
+    padding: 15px;
+    margin-top: 20px;
+}
+
+label{
+    display: block;
+    color: var(--text-primary);
+    font-weight: bold;
+    font-family: sans-serif;
+    font-size: 1.1em;
+    margin-top: 20px;
+}
+
+input[type=text] , input[type=password]{
+    width: 100%;
+    height: 45px;
+    margin-top: 5px;
+    border-radius: 5px;
+    border: none;
+}
+
+input[type=submit]{
+    width: 130px;
+    height: 50px;
+    font-size: 1.1em;
+    font-weight: bold;
+    color: var(--primary);
+    background-color: var(--orange);
+    border: none;
+    border-radius: 10px;
+    margin: auto;
+    margin-top: 20px;
+    transition: 0.2s;
+}
+
+input[type=submit]:hover{
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+a{
+    color: var(--text-primary);
+    font-size: 1.1em;
+    text-decoration: none;
+    transition: 0.2s;
+}
+
+a:hover{
+    text-decoration: underline;
+}

@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MusicHub</title>
+    <!--style-->
+    <link rel="stylesheet" href="/css/home.css" />
+    <!--JQuery-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!--axios-->
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js"></script>
+    <!--socket-->
+    <script src="/socket.io/socket.io.js"></script>
+  </head>
+
+  <body>
+    <div id="overlay">
+      <div id="close_overlay" onclick="close_overlay()">
+        <img src="/assets/icons/close.png" alt="close" />
+      </div>
+
+      <!--add friends overlay-->
+      <div id="overlay_add_friends_con" class="overlay_child">
+        <h2>Add Friends &#128108;</h2>
+        <div class="add_friends_search_div">
+          <input type="text" placeholder="Search Friends.." />
+        </div>
+        <div id="add_friends_holder">
+          <!--  add friends card-->
+          <div class="add_friends_card">
+            <div class="add_friends_img_div">
+              <img src="/assets/icons/profile.png" alt="" />
+            </div>
+            <div class="add_friends_name_div">
+              <h3>Username</h3>
+            </div>
+            <div class="add_friends_btn_div">
+              <button class="add_friend_request_btn">Request</button>
+            </div>
+          </div>
+          <!--  add friends card end-->
+        </div>
+      </div>
+    </div>
+    <div id="main">
+      <div class="navbar_container">
+        <img class="logo" src="/assets/images/musichub.jpg" alt="logo" />
+        <div class="navbar">
+          <ul>
+            <!-- <li>
+              <span>
+                <img class="navicon" src="/assets/icons/home.png" alt="logo"
+              /></span>
+              <p>Home</p>
+            </li> -->
+            <li onclick="addFriends()">
+              <span>
+                <img class="navicon" src="/assets/icons/friends.png" alt="logo"
+              /></span>
+              <p>Add Friends</p>
+            </li>
+            <li>
+              <span>
+                <img class="navicon" src="/assets/icons/library.png" alt="logo"
+              /></span>
+              <p>Playlist</p>
+            </li>
+          </ul>
+        </div>
+        <div class="profile_con">
+          <div class="profile_icon_holder">
+            <img class="dot" src="/assets/icons/dot.png" alt="dot" /><img
+              class="profile_img"
+              src="/assets/icons/profile.png"
+              alt="profile"
+            />
+          </div>
+          <div class="profile_info_con">
+            <p>Welcome</p>
+            <h1 id="profile_username"></h1>
+            <div class="profile_info_holder">
+              <div class="profile_friends_con">
+                <p id="friendsCount">17</p>
+                <h3>Friends</h3>
+              </div>
+              <div class="profile_logout_con">
+                <button onclick="logout_user()">Logout</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="content">
+        <header>
+          <div class="searchbar">
+            <input
+              type="text"
+              id="search_song_input"
+              placeholder="Songs, Artist"
+              onkeyup="search()"
+            /><span> <button></button></span>
+          </div>
+          <div class="song_req">
+            <div class="song_req_holder" onclick="showSongReq()">
+              <p class="song_req_count">7</p>
+              <img
+                class="song_req_logo"
+                src="/assets/icons/msg.png"
+                alt="msg"
+              />
+            </div>
+          </div>
+          <div class="notification">
+            <div class="notification_holder" onclick="showFriendReq()">
+              <p class="notification_count" id="friend_req_count"></p>
+              <img
+                class="notification_logo"
+                src="/assets/icons/notification.png"
+                alt="notification"
+              />
+            </div>
+          </div>
+        </header>
+        <div class="songs_friends_con">
+          <div class="songs_holder">
+            <h2>Songs</h2>
+            <hr />
+            <div id="songs_list" class="songs_list">
+              <!--songs card-->
+              <!--songs card end-->
+            </div>
+          </div>
+          <!--room holder-->
+          <div class="room_holder">
+            <h2>Room</h2>
+            <hr />
+            <div class="room_list">
+              <h2 id="room_status_text">Not in Room <br>Die Single&#128128;</h2>
+              <button id="create_room_btn" onclick="createRoom(this)">Create Room</button>
+            </div>
+          </div>
+        </div>
+        <footer>
+          <audio
+            src=""
+            id="audio"
+            controls="controls"
+            autoplay="autoplay"
+          ></audio>
+          <div class="room_con">
+            <div class="room_holder_temp">
+              <img src="/assets/icons/room.png" alt="room" />
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <!--song req notification-->
+
+    <div id="song_req_noti_con">
+      <h3>
+        Room request<span id="close_song_div" onclick="closeSongReq()">
+          <img src="/assets/icons/close.png" alt="close"
+        /></span>
+      </h3>
+      <div class="song_noti_list">
+        <!--song request card-->
+        <div class="song_req_noti_card">
+          <div class="song_req_noti_img">
+            <img src="/assets/icons/profile.png" alt="profile" />
+          </div>
+          <div class="song_req_noti_info">
+            <p>Username</p>
+          </div>
+          <div class="song_req_noti_controls">
+            <div class="song_req_noti_controls_sub">
+              <img src="/assets/icons/cross.png" alt="cross" />
+            </div>
+            <div class="song_req_noti_controls_sub">
+              <img src="/assets/icons/correct.png" alt="correct" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--song req notification ends-->
+
+    <!--friend req notification-->
+    <div id="friend_req_noti_con">
+      <h3>
+        Friend request<span id="close_friend_div" onclick="closeFriendReq()">
+          <img src="/assets/icons/close.png" alt="close"
+        /></span>
+      </h3>
+
+      <div class="friend_noti_list" id="friend_noti_list">
+        <!--friend request card-->
+        <!--test-->
+        <div class="friend_req_noti_card">
+          <div class="friend_req_noti_img">
+            <img src="/assets/icons/profile.png" alt="profile" />
+          </div>
+          <div class="friend_req_noti_info">
+            <p>Username</p>
+          </div>
+          <div class="friend_req_noti_controls">
+            <div class="friend_req_noti_controls_sub">
+              <img src="/assets/icons/cross.png" alt="cross" />
+            </div>
+            <div class="friend_req_noti_controls_sub">
+              <img src="/assets/icons/correct.png" alt="correct" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--friend req notification ends-->
+  </body>
+
+  <!--script-->
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="text/javascript">
+    var socket = io();
+
+    var audio = document.getElementById("audio");
+
+    //  open overlay
+    function open_overlay() {
+      document.getElementById("main").style.filter = "blur(3px)";
+      document.getElementById("overlay").style.display = "flex";
+    }
+    //  close overlay
+    function close_overlay() {
+      document.getElementById("overlay_add_friends_con").style.display = "none";
+      document.getElementById("overlay").style.display = "none";
+      document.getElementById("main").style.filter = "blur(0)";
+    }
+
+    //  add friends
+    function addFriends() {
+      axios.get("/getAllUsers").then((stack) => {
+        const add_friend_parent = document.getElementById("add_friends_holder");
+        const exist_all_users =
+          add_friend_parent.querySelectorAll(".add_friends_card");
+
+        //remove existed users
+        exist_all_users.forEach((card) => {
+          card.remove();
+        });
+
+        //create new users
+        for (let i = 0; i < stack.data.length; i++) {
+          // create add friends card div
+          const add_friend_card_div = document.createElement("div");
+          add_friend_card_div.classList.add("add_friends_card");
+
+          //create add friends img div
+          const add_friends_card_img_div = document.createElement("div");
+          add_friends_card_img_div.classList.add("add_friends_img_div");
+
+          //create add friends img tag
+          const add_friends_img_tag = document.createElement("img");
+          add_friends_img_tag.setAttribute("src", "/assets/icons/profile.png");
+
+          //create add friends name div
+          const add_friend_name_div = document.createElement("div");
+          add_friend_name_div.classList.add("add_friends_name_div");
+          const username_ele = document.createElement("h3");
+          const username_ele_text = document.createTextNode(
+            stack.data[i].username
+          );
+          username_ele.appendChild(username_ele_text);
+          add_friend_name_div.appendChild(username_ele);
+
+          //create add friend button div
+          const add_friend_btn_div = document.createElement("div");
+          add_friend_btn_div.classList.add("add_friends_btn_div");
+
+          //create add friend btn
+          const add_friend_btn = document.createElement("button");
+          add_friend_btn.classList.add("add_friend_request_btn");
+          const add_friend_btn_text = document.createTextNode("Add Friend");
+          add_friend_btn.appendChild(add_friend_btn_text);
+
+          //create final card
+          add_friend_card_div.appendChild(add_friends_card_img_div);
+          add_friends_card_img_div.appendChild(add_friends_img_tag);
+          add_friend_card_div.appendChild(add_friend_name_div);
+          add_friend_card_div.appendChild(add_friend_btn_div);
+          add_friend_btn_div.appendChild(add_friend_btn);
+
+
+          //add event listener to button
+          add_friend_btn.addEventListener("click", function () {
+            axios
+              .get("/requestUser", {
+                params: {
+                  user_id: stack.data[i]._id,
+                },
+              })
+              .then(function () {
+                const btn_text = document.getElementsByClassName(
+                  "add_friend_request_btn"
+                );
+                btn_text[i].innerHTML = "Requested";
+                if (stack.data[i].socket_id != "") {
+                  socket.emit("friend_request", stack.data[i].socket_id);
+                }
+                add_friend_btn.disabled = true;
+              });
+          });
+          add_friend_parent.appendChild(add_friend_card_div);
+        }
+      });
+
+      open_overlay();
+      document.getElementById("overlay_add_friends_con").style.display = "flex";
+    }
+
+    //friend request recived
+    socket.on("sent_friend_request", (data) => {
+      axios.get("/friend_request_recived").then((res) => {
+        //update friendReqCount
+        document.getElementById("friend_req_count").innerHTML = res.data[0].friend_request.length;
+      });
+    });
+
+    //update friend count
+    socket.on("updateFriendCount",(data)=>{
+      document.getElementById("friendsCount").innerHTML = data[0].friends.length;
+    });
+
+
+    //  page load
+    socket.on("load", (stack) => {
+      const songs_parent = document.getElementById("songs_list");
+      const exist_songs = songs_parent.querySelectorAll(".song_card");
+
+      //set session from server side to client side
+      sessionStorage.setItem("username", stack.sessionData.username);
+      sessionStorage.setItem("_id", stack.sessionData._id);
+      sessionStorage.setItem("room_status", 0);
+
+      document.getElementById("profile_username").innerHTML =
+        sessionStorage.getItem("username");
+
+      //update friendReqCount
+      document.getElementById("friend_req_count").innerHTML =
+        stack.friendReqCount;
+      
+      //update friends count
+      document.getElementById("friendsCount").innerHTML = stack.friendsCount[0].friends.length;
+
+      //remove existing songs
+      exist_songs.forEach((card) => {
+        card.remove();
+      });
+
+      //    create new songs
+      for (let i = 0; i < stack.song.length; i++) {
+        //create song_card_div
+        const song_card = document.createElement("div");
+        song_card.classList.add("song_card");
+        //create image
+        const song_card_image = document.createElement("img");
+        song_card_image.setAttribute("src", "/assets/images/cover.jpg");
+
+        //create song_card info div
+        const song_card_info_div = document.createElement("div");
+        song_card_info_div.classList.add("song_info_con");
+
+        //create song name
+        const song_card_name = document.createElement("h3");
+        song_card_name.classList.add("song_name_card");
+        const song_card_name_text = document.createTextNode(stack.song[i].name);
+        song_card_name.appendChild(song_card_name_text);
+
+        //create song card artist
+        const song_card_artist = document.createElement("p");
+        song_card_artist.classList.add("song_artist_card");
+        const song_card_artist_text = document.createTextNode(
+          stack.song[i].artist
+        );
+        song_card_artist.appendChild(song_card_artist_text);
+
+        //create song card duration
+        const song_card_duration = document.createElement("p");
+        song_card_duration.classList.add("song_duration_card");
+        const song_card_duration_text = document.createTextNode(
+          stack.song[i].duration
+        );
+        song_card_duration.appendChild(song_card_duration_text);
+
+        //create final card
+
+        songs_parent.appendChild(song_card);
+
+        song_card.appendChild(song_card_image);
+        song_card.appendChild(song_card_info_div);
+        song_card_info_div.appendChild(song_card_name);
+        song_card_info_div.appendChild(song_card_artist);
+        song_card_info_div.appendChild(song_card_duration);
+
+        song_card.addEventListener("click", () => {
+          audio.setAttribute("src", stack.song[i].path);
+          audio.load();
+        });
+      }
+    });
+
+    //logout user
+    function logout_user() {
+      axios.get("/logoutUser").then((res) => {
+        if (res.status == 200) {
+          sessionStorage.clear("username");
+          sessionStorage.clear("_id");
+          sessionStorage.clear("room_status");
+          socket.emit("logout", "helo");
+          window.location.replace("/");
+        }
+      });
+    }
+
+    // open song req notification
+    function showSongReq() {
+      document.getElementById("song_req_noti_con").style.display = "flex";
+    }
+    // close song req notification
+    function closeSongReq() {
+      document.getElementById("song_req_noti_con").style.display = "none";
+    }
+
+    //open friend req notification
+    function showFriendReq() { 
+
+      let friend_noti_list_parent =
+        document.getElementById("friend_noti_list");
+
+      let existing_friend_req_card = friend_noti_list_parent.querySelectorAll(
+        ".friend_req_noti_card"
+      );
+
+      //remove existing card
+      existing_friend_req_card.forEach((card) => {
+        card.remove();
+      });
+
+      axios.get("/friend_request_recived").then((res) => {
+        document.getElementById("friend_req_noti_con").style.display = "flex";
+        for (let i = 0; i < res.data[0].friend_request.length; i++) {
+          //test
+          //create friend req card
+          const friend_req_card = document.createElement("div");
+          friend_req_card.classList.add("friend_req_noti_card");
+
+          //friend req noti img div with class
+          const friend_req_noti_img_div = document.createElement("div");
+          friend_req_noti_img_div.classList.add("friend_req_noti_img");
+          const friend_req_noti_img_tag = document.createElement("img");
+          friend_req_noti_img_tag.setAttribute("src","/assets/icons/profile.png");
+
+          //friend req noti info
+          const friend_req_noti_info_div = document.createElement("div");
+          friend_req_noti_info_div.classList.add("friend_req_noti_info")
+          const friend_req_username = document.createElement("p");
+          const friend_req_username_text = document.createTextNode(res.data[0].friend_request[i].username);
+          friend_req_username.appendChild(friend_req_username_text);
+
+          //friend req noti controls
+          const friend_req_noti_controls_div = document.createElement("div");
+          friend_req_noti_controls_div.classList.add("friend_req_noti_controls");
+
+          //friend req noti controls sub 1
+          const friend_req_noti_controls_sub_div_1 = document.createElement("div");
+          friend_req_noti_controls_sub_div_1.classList.add("friend_req_noti_controls_sub");
+          const friend_req_noti_controls_sub_img_1 = document.createElement("img");
+          friend_req_noti_controls_sub_img_1.setAttribute("src","/assets/icons/cross.png");
+          friend_req_noti_controls_sub_div_1.appendChild(friend_req_noti_controls_sub_img_1);
+
+          //friend req noti controls sub 2
+          const friend_req_noti_controls_sub_div_2 = document.createElement("div");
+          friend_req_noti_controls_sub_div_2.classList.add("friend_req_noti_controls_sub");
+          const friend_req_noti_controls_sub_img_2 = document.createElement("img");
+          friend_req_noti_controls_sub_img_2.setAttribute("src","/assets/icons/correct.png");
+          friend_req_noti_controls_sub_div_2.appendChild(friend_req_noti_controls_sub_img_2);
+          
+
+          friend_req_noti_img_div.appendChild(friend_req_noti_img_tag);
+          friend_req_noti_info_div.appendChild(friend_req_username);
+          friend_req_noti_controls_div.appendChild(friend_req_noti_controls_sub_div_1);
+          friend_req_noti_controls_div.appendChild(friend_req_noti_controls_sub_div_2);
+
+          //final card
+          friend_req_card.appendChild(friend_req_noti_img_div);
+          friend_req_card.appendChild(friend_req_noti_info_div);
+          friend_req_card.appendChild(friend_req_noti_controls_div);
+
+          //event listener
+          //reject
+          friend_req_noti_controls_sub_img_1.addEventListener("click",function(){
+            axios.get("/reject_friend",{
+              params:{
+                user_id: res.data[0].friend_request[i]._id
+              }
+            }).then((stack)=>{
+              friend_req_card.style.display = "none";
+            });
+          });
+
+          //accept
+          friend_req_noti_controls_sub_img_2.addEventListener("click",()=>{
+            axios.get("/accept_friend",{
+              params:{
+                user_id:res.data[0].friend_request[i]._id
+              }
+            }).then((stack)=>{
+              document.getElementById("friendsCount").innerHTML = stack.data.friend_count[0].friends.length;
+              socket.emit("sendFriendCount",res.data[0].friend_request[i].socket_id);
+              friend_req_card.style.display = "none";
+            });
+          });
+
+          friend_noti_list_parent.appendChild(friend_req_card);
+          
+        }
+      });
+    }
+    //close friend req notification
+    function closeFriendReq() {
+      document.getElementById("friend_req_noti_con").style.display = "none";
+      axios.get("/friend_request_recived").then((res) => {
+        //update friendReqCount
+        document.getElementById("friend_req_count").innerHTML = res.data[0].friend_request.length;
+      });
+    }
+
+    //create room
+    function createRoom(id){
+      document.getElementById("room_status_text").style.display = "none";
+      id.style.backgroundColor = "#dc3545";
+      id.innerHTML = "Leave Room"
+    }
+  </script>
+</html>

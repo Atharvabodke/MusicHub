@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin page</title>
+  <!--link-->
+  <link rel="stylesheet" href="/css/admin.css" />
+
+  <!--jquery-->
+
+
+</head>
+
+<body>
+  <h1>Admin page</h1>
+
+  <form action="/upload_song" method="post">
+    <audio id="audio" controls>
+      <source src="../assets/audio/song.mp3" id="src" />
+    </audio>
+    <br>
+    <input type="file" id="upload" onchange="play_song(event)" />
+    <br>
+    <br>
+    <label for="song_name">Song name</label>
+    <input type="text" name="song_name" required>
+    <br>
+    <br>
+    <label for="song_duration">Song Duration</label>
+    <input type="text" name="song_duration" required>
+    <br>
+    <br>
+    <label for="song_artist">Song Artist</label>
+    <input type="text" name="song_artist" required>
+    <br>
+    <br>
+    <label for="song_path">Song Path</label>
+    <input type="text" name="song_path"  placeholder="../assets/audio/song_name.mp3" required >
+    <label for="song_path">eg: "../assets/audio/song_name.mp3"</label>
+    <br>
+    <br>
+    <input type="submit" value="Upload">
+  </form>
+
+
+  <script>
+    function play_song(event) {
+      let file = event.target.files;
+
+      let src = document.getElementById("src");
+      src.setAttribute("src", URL.createObjectURL(file[0]));
+
+      document.getElementById("audio").load();
+      console.log(file)
+    }
+  </script>
+</body>
+
+</html>

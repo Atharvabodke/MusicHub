@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <!--link-->
+    <link rel="stylesheet" href="./css/login.css">
+    
+</head>
+<body>
+    <div class="container">
+        <div class="main_container">
+            <div class="img"></div>
+            <div class="info_container">
+                <h2>Login</h2>
+                <div class="form_div">
+                    <form action="/loginuser" method="POST" name="login_form" onsubmit="return validate()">
+                        <!--username-->
+                        <label for="username">Username</label>
+                        <input type="text" name="username" value="" id="username" required>
+
+                        <!--password-->
+                        <label for="password">Password</label>
+                        <input type="password" name="password" value="" id="password" required>
+
+                        <div style="text-align:center">
+                            <input type="submit" value="Login">
+                        </div>
+                        <div style="text-align: center; margin-top: 25px;" >
+                            <p style="color:#C0C0C0; font-size: 1.1em; font-family: Arial, Helvetica, sans-serif;">Don't have an account? <a href="/signup"><span style="color: #FD9322;">Signup</span></a></p>
+                        </div>
+                        
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        function validate(){
+            const username = document.forms["login_form"]["username"].value;
+            const password = document.forms["login_form"]["password"].value;
+            
+            var regexp = /^\S*$/;
+            if(regexp.test(username) == true && regexp.test(password) == true){
+                return true;
+            }else{
+                alert("Username and Password cannot contain spaces");
+                return false;
+            }
+        }
+    </script>
+
+</body>
+</html>
