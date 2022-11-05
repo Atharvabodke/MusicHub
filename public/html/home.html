@@ -517,7 +517,7 @@
               }
             }).then((stack)=>{
               document.getElementById("friendsCount").innerHTML = stack.data.friend_count[0].friends.length;
-              socket.emit("sendFriendCount",res.data[0].friend_request[i].socket_id);
+              socket.emit("sendFriendCount",{user_id:res.data[0].friend_request[i]._id,socket_id:res.data[0].friend_request[i].socket_id});
               friend_req_card.style.display = "none";
             });
           });

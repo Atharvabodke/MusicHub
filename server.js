@@ -49,7 +49,7 @@ app.get("/home", (req, res) => {
 //signup user path
 
 app.post("/signupuser", (req, res) => {
-  mongoose.connect(local_url).then(() => {
+  mongoose.connect(db_url).then(() => {
     validateUser().then(() => {
       res.redirect("/");
     });
@@ -68,7 +68,7 @@ app.post("/signupuser", (req, res) => {
 
 //  login user path
 app.post("/loginuser", (req, res) => {
-  mongoose.connect(local_url).then(() => {
+  mongoose.connect(db_url).then(() => {
     findUser();
   });
   async function findUser() {
@@ -100,7 +100,7 @@ app.get("/test", (req, res) => {
 io.on("connection", (socket) => {
   let friendReqCount;
   let friend_list;
-  mongoose.connect(local_url);
+  mongoose.connect(db_url);
   getSongs();
 
   async function getSongs() {
@@ -117,7 +117,7 @@ io.on("connection", (socket) => {
           },
           song: songs,
           friendReqCount: friendReqCount.length,
-          friendsCount: friend_list
+          friendsCount: friend_list,
         });
       });
     });
@@ -127,7 +127,10 @@ io.on("connection", (socket) => {
         _id: socket.handshake.session._id,
       });
 
-      friend_list = await UserSchema.find({_id:socket.handshake.session._id},{_id:0,"friends":1});
+      friend_list = await UserSchema.find(
+        { _id: socket.handshake.session._id },
+        { _id: 0, friends: 1 }
+      );
     }
 
     async function uploadSocketId() {
@@ -149,14 +152,19 @@ io.on("connection", (socket) => {
   });
 
   // send friend count
-  socket.on("sendFriendCount",(id)=>{
+  socket.on("sendFriendCount", (data) => {
     let friendCount;
-    getFriendCount().then(()=>{
-      socket.broadcast.to(id).emit("updateFriendCount",friendCount);
+    getFriendCount().then(() => {
+      socket.broadcast
+        .to(data.socket_id)
+        .emit("updateFriendCount", friendCount);
     });
-    
-    async function getFriendCount(){
-      friendCount = await UserSchema.find({_id:socket.handshake.session._id},{_id:0,"friends":1});
+
+    async function getFriendCount() {
+      friendCount = await UserSchema.find(
+        { _id: data.user_id },
+        { _id: 0, friends: 1 }
+      );
     }
   });
 
@@ -172,9 +180,9 @@ io.on("connection", (socket) => {
 app.get("/getAllUsers", (req, res) => {
   let users;
   let friends;
-  let friends_list;
-  mongoose.connect(local_url).then(() => {
-    getFriends().then(()=>{
+  let final_friends;
+  mongoose.connect(db_url).then(() => {
+    getFriends().then(() => {
       final_friends = friends[0].friends;
       getAllUser().then(() => {
         res.send(users);
@@ -184,16 +192,24 @@ app.get("/getAllUsers", (req, res) => {
 
   async function getAllUser() {
     //users = await UserSchema.find({ _id: { $ne: req.session._id } });
-    users = await UserSchema.find({$and:[{_id:{$ne:req.session._id}},{ _id: { $nin: [final_friends] } }]});
+    users = await UserSchema.find({
+      $and: [
+        { _id: { $ne: req.session._id } },
+        { _id: { $nin: final_friends } },
+      ],
+    });
   }
-  async function getFriends(){
-    friends = await UserSchema.find({_id:req.session._id},{_id:0,"friends":1});
+  async function getFriends() {
+    friends = await UserSchema.find(
+      { _id: req.session._id },
+      { _id: 0, friends: 1 }
+    );
   }
 });
 
 // logout user
 app.get("/logoutUser", (req, res) => {
-  mongoose.connect(local_url).then(() => {
+  mongoose.connect(db_url).then(() => {
     logoutUser().then(() => {
       req.session.destroy();
       res.send();
@@ -209,7 +225,7 @@ app.get("/logoutUser", (req, res) => {
 
 //request user
 app.get("/requestUser", (req, res) => {
-  mongoose.connect(local_url).then(() => {
+  mongoose.connect(db_url).then(() => {
     addFriend();
   });
 
@@ -243,12 +259,9 @@ app.get("/requestUser", (req, res) => {
 
 //friend request update count
 app.get("/friend_request_recived", (req, res) => {
-  let list;
   let user;
-  getUpdateFriendRequestList().then(() => {
-    getUser().then(() => {
-      res.send(user);
-    });
+  getUser().then(() => {
+    res.send(user);
   });
 
   async function getUser() {
@@ -256,12 +269,6 @@ app.get("/friend_request_recived", (req, res) => {
       { _id: req.session._id },
       { friend_request: 1 }
     ).populate("friend_request");
-  }
-
-  async function getUpdateFriendRequestList() {
-    list = await UserSchema.distinct("friend_request", {
-      _id: req.session._id,
-    });
   }
 });
 
@@ -283,7 +290,7 @@ app.get("/accept_friend", (req, res) => {
   let friend_list;
   removeRequest().then(() => {
     updateFriendList().then(() => {
-      res.send({friend_count:friend_list});
+      res.send({ friend_count: friend_list });
     });
   });
 
@@ -309,7 +316,10 @@ app.get("/accept_friend", (req, res) => {
     );
 
     //get friends count
-    friend_list = await UserSchema.find({_id:req.session._id},{_id:0,"friends":1});
+    friend_list = await UserSchema.find(
+      { _id: req.session._id },
+      { _id: 0, friends: 1 }
+    );
   }
 });
 
