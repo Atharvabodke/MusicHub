@@ -49,7 +49,7 @@ app.get("/home", (req, res) => {
 //signup user path
 
 app.post("/signupuser", (req, res) => {
-  mongoose.connect(db_url).then(() => {
+  mongoose.connect(local_url).then(() => {
     validateUser().then(() => {
       res.redirect("/");
     });
@@ -68,7 +68,7 @@ app.post("/signupuser", (req, res) => {
 
 //  login user path
 app.post("/loginuser", (req, res) => {
-  mongoose.connect(db_url).then(() => {
+  mongoose.connect(local_url).then(() => {
     findUser();
   });
   async function findUser() {
@@ -100,7 +100,7 @@ app.get("/test", (req, res) => {
 io.on("connection", (socket) => {
   let friendReqCount;
   let friend_list;
-  mongoose.connect(db_url);
+  mongoose.connect(local_url);
   getSongs();
 
   async function getSongs() {
@@ -181,7 +181,7 @@ app.get("/getAllUsers", (req, res) => {
   let users;
   let friends;
   let final_friends;
-  mongoose.connect(db_url).then(() => {
+  mongoose.connect(local_url).then(() => {
     getFriends().then(() => {
       final_friends = friends[0].friends;
       getAllUser().then(() => {
@@ -209,7 +209,7 @@ app.get("/getAllUsers", (req, res) => {
 
 // logout user
 app.get("/logoutUser", (req, res) => {
-  mongoose.connect(db_url).then(() => {
+  mongoose.connect(local_url).then(() => {
     logoutUser().then(() => {
       req.session.destroy();
       res.send();
@@ -225,7 +225,7 @@ app.get("/logoutUser", (req, res) => {
 
 //request user
 app.get("/requestUser", (req, res) => {
-  mongoose.connect(db_url).then(() => {
+  mongoose.connect(local_url).then(() => {
     addFriend();
   });
 

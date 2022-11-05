@@ -136,21 +136,43 @@
             <h2>Room</h2>
             <hr />
             <div class="room_list">
-              <h2 id="room_status_text">Not in Room <br>Die Single&#128128;</h2>
-              <button id="create_room_btn" onclick="createRoom(this)">Create Room</button>
+              <h2 id="room_status_text">
+                Not in Room <br />Die Single&#128128;
+              </h2>
+              <button id="create_room_btn" onclick="createRoom(this)">
+                Create Room
+              </button>
             </div>
           </div>
         </div>
+
+        <!--footer-->
         <footer>
-          <audio
-            src=""
-            id="audio"
-            controls="controls"
-            autoplay="autoplay"
-          ></audio>
-          <div class="room_con">
-            <div class="room_holder_temp">
-              <img src="/assets/icons/room.png" alt="room" />
+          <audio src="" id="audio" autoplay></audio>
+          <div class="song_info_holder">
+            <div class="song_img_holder">
+              <img src="/assets/images/song_img.webp" alt="song img" />
+            </div>
+            <div class="song_details_con">
+              <h3 id="song_name">song name</h3>
+              <p id="song_artist">atrist</p>
+            </div>
+            <div class="v1"></div>
+          </div>
+          <div class="song_controls_holder">
+            <div class="song_controls_upper">
+              <div class="song_duration current_duration">
+                <p><p id="song_current_duration_min">0</p>:<p id="song_current_duration_sec">00</p></p>
+              </div>
+              <div class="song_seekbar">
+                <input id="seekbar" min="0" max="100" value="0" type="range">
+              </div>
+              <div class="song_duration total_duration">
+                <p id="song_total_duration">0:00</p>
+              </div>
+            </div>
+            <div class="song_controls_lower">
+              <img id="song_status_img" src="/assets/icons/play.svg" alt="">
             </div>
           </div>
         </footer>
@@ -222,9 +244,13 @@
   <!--script-->
   <script src="/socket.io/socket.io.js"></script>
   <script type="text/javascript">
+    //global declartions
     var socket = io();
-
     var audio = document.getElementById("audio");
+    var seekbar = document.getElementById("seekbar");
+    var song_status_img = document.getElementById("song_status_img");
+
+    var song_status = 0;
 
     //  open overlay
     function open_overlay() {
@@ -291,7 +317,6 @@
           add_friend_card_div.appendChild(add_friend_btn_div);
           add_friend_btn_div.appendChild(add_friend_btn);
 
-
           //add event listener to button
           add_friend_btn.addEventListener("click", function () {
             axios
@@ -323,15 +348,16 @@
     socket.on("sent_friend_request", (data) => {
       axios.get("/friend_request_recived").then((res) => {
         //update friendReqCount
-        document.getElementById("friend_req_count").innerHTML = res.data[0].friend_request.length;
+        document.getElementById("friend_req_count").innerHTML =
+          res.data[0].friend_request.length;
       });
     });
 
     //update friend count
-    socket.on("updateFriendCount",(data)=>{
-      document.getElementById("friendsCount").innerHTML = data[0].friends.length;
+    socket.on("updateFriendCount", (data) => {
+      document.getElementById("friendsCount").innerHTML =
+        data[0].friends.length;
     });
-
 
     //  page load
     socket.on("load", (stack) => {
@@ -349,9 +375,10 @@
       //update friendReqCount
       document.getElementById("friend_req_count").innerHTML =
         stack.friendReqCount;
-      
+
       //update friends count
-      document.getElementById("friendsCount").innerHTML = stack.friendsCount[0].friends.length;
+      document.getElementById("friendsCount").innerHTML =
+        stack.friendsCount[0].friends.length;
 
       //remove existing songs
       exist_songs.forEach((card) => {
@@ -404,11 +431,53 @@
         song_card_info_div.appendChild(song_card_duration);
 
         song_card.addEventListener("click", () => {
-          audio.setAttribute("src", stack.song[i].path);
-          audio.load();
+          const room_status = sessionStorage.getItem("room_status");
+          if (room_status == 0) {
+            audio.setAttribute("src", stack.song[i].path);
+            
+            document.getElementById("song_name").innerHTML = stack.song[i].name;
+            document.getElementById("song_artist").innerHTML =
+              stack.song[i].artist;
+            document.getElementById("song_total_duration").innerHTML = stack.song[i].duration;
+            song_status = 1;
+            song_status_img.setAttribute("src","/assets/icons/pause.svg");
+            audio.load();
+            audio.onloadedmetadata = function(){
+              seekbar.setAttribute("max",audio.duration);
+              seekbar.setAttribute("value",0);
+            }
+          }else{
+            alert("working");
+          }
         });
       }
     });
+
+    //play and pause song
+    song_status_img.addEventListener("click",()=>{
+      if(song_status == 0){
+        song_status_img.setAttribute("src","/assets/icons/pause.svg");
+        audio.play();
+        song_status = 1;
+      }else{
+        song_status_img.setAttribute("src","/assets/icons/play.svg");
+        audio.pause();
+        song_status = 0;
+      }
+    });
+    //update audio on seekbar change
+    seekbar.onchange = function(){
+      audio.currentTime = seekbar.value;
+    }
+
+    //update seekbar
+    audio.ontimeupdate = function(){
+      let currTime = Math.floor(audio.currentTime);
+      document.getElementById("song_current_duration_sec").innerHTML = currTime;
+      seekbar.value = currTime;
+      
+    }
+    
 
     //logout user
     function logout_user() {
@@ -433,10 +502,8 @@
     }
 
     //open friend req notification
-    function showFriendReq() { 
-
-      let friend_noti_list_parent =
-        document.getElementById("friend_noti_list");
+    function showFriendReq() {
+      let friend_noti_list_parent = document.getElementById("friend_noti_list");
 
       let existing_friend_req_card = friend_noti_list_parent.querySelectorAll(
         ".friend_req_noti_card"
@@ -459,38 +526,66 @@
           const friend_req_noti_img_div = document.createElement("div");
           friend_req_noti_img_div.classList.add("friend_req_noti_img");
           const friend_req_noti_img_tag = document.createElement("img");
-          friend_req_noti_img_tag.setAttribute("src","/assets/icons/profile.png");
+          friend_req_noti_img_tag.setAttribute(
+            "src",
+            "/assets/icons/profile.png"
+          );
 
           //friend req noti info
           const friend_req_noti_info_div = document.createElement("div");
-          friend_req_noti_info_div.classList.add("friend_req_noti_info")
+          friend_req_noti_info_div.classList.add("friend_req_noti_info");
           const friend_req_username = document.createElement("p");
-          const friend_req_username_text = document.createTextNode(res.data[0].friend_request[i].username);
+          const friend_req_username_text = document.createTextNode(
+            res.data[0].friend_request[i].username
+          );
           friend_req_username.appendChild(friend_req_username_text);
 
           //friend req noti controls
           const friend_req_noti_controls_div = document.createElement("div");
-          friend_req_noti_controls_div.classList.add("friend_req_noti_controls");
+          friend_req_noti_controls_div.classList.add(
+            "friend_req_noti_controls"
+          );
 
           //friend req noti controls sub 1
-          const friend_req_noti_controls_sub_div_1 = document.createElement("div");
-          friend_req_noti_controls_sub_div_1.classList.add("friend_req_noti_controls_sub");
-          const friend_req_noti_controls_sub_img_1 = document.createElement("img");
-          friend_req_noti_controls_sub_img_1.setAttribute("src","/assets/icons/cross.png");
-          friend_req_noti_controls_sub_div_1.appendChild(friend_req_noti_controls_sub_img_1);
+          const friend_req_noti_controls_sub_div_1 =
+            document.createElement("div");
+          friend_req_noti_controls_sub_div_1.classList.add(
+            "friend_req_noti_controls_sub"
+          );
+          const friend_req_noti_controls_sub_img_1 =
+            document.createElement("img");
+          friend_req_noti_controls_sub_img_1.setAttribute(
+            "src",
+            "/assets/icons/cross.png"
+          );
+          friend_req_noti_controls_sub_div_1.appendChild(
+            friend_req_noti_controls_sub_img_1
+          );
 
           //friend req noti controls sub 2
-          const friend_req_noti_controls_sub_div_2 = document.createElement("div");
-          friend_req_noti_controls_sub_div_2.classList.add("friend_req_noti_controls_sub");
-          const friend_req_noti_controls_sub_img_2 = document.createElement("img");
-          friend_req_noti_controls_sub_img_2.setAttribute("src","/assets/icons/correct.png");
-          friend_req_noti_controls_sub_div_2.appendChild(friend_req_noti_controls_sub_img_2);
-          
+          const friend_req_noti_controls_sub_div_2 =
+            document.createElement("div");
+          friend_req_noti_controls_sub_div_2.classList.add(
+            "friend_req_noti_controls_sub"
+          );
+          const friend_req_noti_controls_sub_img_2 =
+            document.createElement("img");
+          friend_req_noti_controls_sub_img_2.setAttribute(
+            "src",
+            "/assets/icons/correct.png"
+          );
+          friend_req_noti_controls_sub_div_2.appendChild(
+            friend_req_noti_controls_sub_img_2
+          );
 
           friend_req_noti_img_div.appendChild(friend_req_noti_img_tag);
           friend_req_noti_info_div.appendChild(friend_req_username);
-          friend_req_noti_controls_div.appendChild(friend_req_noti_controls_sub_div_1);
-          friend_req_noti_controls_div.appendChild(friend_req_noti_controls_sub_div_2);
+          friend_req_noti_controls_div.appendChild(
+            friend_req_noti_controls_sub_div_1
+          );
+          friend_req_noti_controls_div.appendChild(
+            friend_req_noti_controls_sub_div_2
+          );
 
           //final card
           friend_req_card.appendChild(friend_req_noti_img_div);
@@ -499,31 +594,41 @@
 
           //event listener
           //reject
-          friend_req_noti_controls_sub_img_1.addEventListener("click",function(){
-            axios.get("/reject_friend",{
-              params:{
-                user_id: res.data[0].friend_request[i]._id
-              }
-            }).then((stack)=>{
-              friend_req_card.style.display = "none";
-            });
-          });
+          friend_req_noti_controls_sub_img_1.addEventListener(
+            "click",
+            function () {
+              axios
+                .get("/reject_friend", {
+                  params: {
+                    user_id: res.data[0].friend_request[i]._id,
+                  },
+                })
+                .then((stack) => {
+                  friend_req_card.style.display = "none";
+                });
+            }
+          );
 
           //accept
-          friend_req_noti_controls_sub_img_2.addEventListener("click",()=>{
-            axios.get("/accept_friend",{
-              params:{
-                user_id:res.data[0].friend_request[i]._id
-              }
-            }).then((stack)=>{
-              document.getElementById("friendsCount").innerHTML = stack.data.friend_count[0].friends.length;
-              socket.emit("sendFriendCount",{user_id:res.data[0].friend_request[i]._id,socket_id:res.data[0].friend_request[i].socket_id});
-              friend_req_card.style.display = "none";
-            });
+          friend_req_noti_controls_sub_img_2.addEventListener("click", () => {
+            axios
+              .get("/accept_friend", {
+                params: {
+                  user_id: res.data[0].friend_request[i]._id,
+                },
+              })
+              .then((stack) => {
+                document.getElementById("friendsCount").innerHTML =
+                  stack.data.friend_count[0].friends.length;
+                socket.emit("sendFriendCount", {
+                  user_id: res.data[0].friend_request[i]._id,
+                  socket_id: res.data[0].friend_request[i].socket_id,
+                });
+                friend_req_card.style.display = "none";
+              });
           });
 
           friend_noti_list_parent.appendChild(friend_req_card);
-          
         }
       });
     }
@@ -532,15 +637,16 @@
       document.getElementById("friend_req_noti_con").style.display = "none";
       axios.get("/friend_request_recived").then((res) => {
         //update friendReqCount
-        document.getElementById("friend_req_count").innerHTML = res.data[0].friend_request.length;
+        document.getElementById("friend_req_count").innerHTML =
+          res.data[0].friend_request.length;
       });
     }
 
     //create room
-    function createRoom(id){
+    function createRoom(id) {
       document.getElementById("room_status_text").style.display = "none";
       id.style.backgroundColor = "#dc3545";
-      id.innerHTML = "Leave Room"
+      id.innerHTML = "Leave Room";
     }
   </script>
 </html>
