@@ -15,12 +15,16 @@
   </head>
 
   <body>
+    <div id="custom_room_alert">
+      <h2 id="alert_msg"></h2>
+    </div>
     <div id="overlay">
       <div id="close_overlay" onclick="close_overlay()">
         <img src="/assets/icons/close.png" alt="close" />
       </div>
 
       <!--add friends overlay-->
+
       <div id="overlay_add_friends_con" class="overlay_child">
         <h2>Add Friends &#128108;</h2>
         <div class="add_friends_search_div">
@@ -48,12 +52,6 @@
         <img class="logo" src="/assets/images/musichub.jpg" alt="logo" />
         <div class="navbar">
           <ul>
-            <!-- <li>
-              <span>
-                <img class="navicon" src="/assets/icons/home.png" alt="logo"
-              /></span>
-              <p>Home</p>
-            </li> -->
             <li onclick="addFriends()">
               <span>
                 <img class="navicon" src="/assets/icons/friends.png" alt="logo"
@@ -103,7 +101,7 @@
           </div>
           <div class="song_req">
             <div class="song_req_holder" onclick="showSongReq()">
-              <p class="song_req_count">7</p>
+              <p class="song_req_count" id="room_req_count">0</p>
               <img
                 class="song_req_logo"
                 src="/assets/icons/msg.png"
@@ -125,7 +123,7 @@
         <div class="songs_friends_con">
           <div class="songs_holder">
             <h2>Songs</h2>
-            <hr />
+
             <div id="songs_list" class="songs_list">
               <!--songs card-->
               <!--songs card end-->
@@ -133,22 +131,173 @@
           </div>
           <!--room holder-->
           <div class="room_holder">
-            <h2>Room</h2>
-            <hr />
+            <h2 id="room_title">Room</h2>
+            <div
+              id="room_invite_friends_holder"
+              onclick="open_room_invite_con()"
+            >
+              <img
+                id="room_invite_friends"
+                src="/assets/icons/add_friends.png"
+                alt=""
+              />
+            </div>
+
+            <div id="room_invite_friends_con">
+              <div class="room_invite_friends_title">
+                <h2>Invite To Room</h2>
+                <span
+                  id="close_room_friends_con"
+                  onclick="close_room_invite_con()"
+                >
+                  <img src="/assets/icons/close.png" alt="cross" />
+                </span>
+              </div>
+              <div id="room_invite_friends_list">
+                <!--room invite friends card-->
+                <div class="room_invite_friends_card">
+                  <div class="room_invite_friends_card_img_holder">
+                    <img src="/assets/icons/profile.png" alt="friends" />
+                  </div>
+                  <div class="room_invite_friends_card_info_holder">
+                    <p>Vansh</p>
+                  </div>
+                  <div class="room_invite_friends_card_btn_holder">
+                    <button>Invite</button>
+                  </div>
+                </div>
+                <!--room invite friends card end-->
+              </div>
+            </div>
+
             <div class="room_list">
-              <h2 id="room_status_text">
-                Not in Room <br />Die Single&#128128;
-              </h2>
-              <button id="create_room_btn" onclick="createRoom(this)">
-                Create Room
-              </button>
+              <div id="room_list_ini" class="room_list_ini">
+                <h2 id="room_status_text">
+                  Not in Room <br />Die Single&#128128;
+                </h2>
+                <button id="create_room_btn" onclick="createRoom()">
+                  Create Room
+                </button>
+              </div>
+              <div class="room_content" id="room_content">
+                <div id="room_header" class="room_header">
+                  <button
+                    id="room_chat_btn"
+                    class="room_content_btns active"
+                    onclick="openRoomTab(this,'chat_container')"
+                  >
+                    chat
+                  </button>
+                  <button
+                    id="room_joined_btn"
+                    class="room_content_btns"
+                    onclick="openRoomTab(this,'joined_container')"
+                  >
+                    Joined - <span id="joined_room_count">1</span>
+                  </button>
+                </div>
+                <div class="room_content_sub">
+                  <div
+                    id="chat_container"
+                    class="room_container active_container"
+                  >
+                    <div id="chat_con_text_list" class="chat_con_text_list">
+                      <!--song room text card-->
+                      <div class="song_room_text_card">
+                        <div class="song_room_text_card_sender_name">
+                          <p>Ved</p>
+                        </div>
+                        <div class="song_room_text_card_sender_msg">
+                          <p>
+                            hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
+                          </p>
+                        </div>
+                      </div>
+                      <div class="song_room_text_card">
+                        <div class="song_room_text_card_sender_name">
+                          <p>Yash</p>
+                        </div>
+                        <div class="song_room_text_card_sender_msg">
+                          <p>
+                            hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
+                          </p>
+                        </div>
+                      </div>
+                      <div class="song_room_text_card">
+                        <div class="song_room_text_card_sender_name">
+                          <p>Deepak</p>
+                        </div>
+                        <div class="song_room_text_card_sender_msg">
+                          <p>
+                            hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
+                          </p>
+                        </div>
+                      </div>
+                      <div class="song_room_text_card sender">
+                        <div class="song_room_text_card_sender_name">
+                          <p class="sender_name">Atharva</p>
+                        </div>
+                        <div class="song_room_text_card_sender_msg">
+                          <p>
+                            hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
+                          </p>
+                        </div>
+                      </div>
+                      <div class="song_room_text_card">
+                        <div class="song_room_text_card_sender_name">
+                          <p>Vansh</p>
+                        </div>
+                        <div class="song_room_text_card_sender_msg">
+                          <p>
+                            hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
+                          </p>
+                        </div>
+                      </div>
+                      <!--song room text card end-->
+                    </div>
+                    <div class="chat_con_text_control">
+                      <input
+                        id="song_text"
+                        type="text"
+                        placeholder="Type Message..."
+                        maxlength="60"
+                      />
+                      <div id="send_img_div">
+                        <img
+                          src="/assets/icons/send_message.png"
+                          alt="send message"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div id="joined_container" class="room_container">
+                    <div id="joined_list">
+                      <!--joined room card-->
+                      <div class="joined_room_card">
+                        <div class="room_card_img_holder">
+                          <img src="/assets/icons/profile.png" alt="profile" />
+                        </div>
+                        <div class="room_card_info_holder">
+                          <p>Vansh</p>
+                        </div>
+                        <div class="room_card_btn_holder">
+                          <button>Remove</button>
+                        </div>
+                      </div>
+
+                      <!--joined room card end-->
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
+        <script></script>
+
         <!--footer-->
         <footer>
-          <audio src="" id="audio" autoplay></audio>
           <div class="song_info_holder">
             <div class="song_img_holder">
               <img src="/assets/images/song_img.webp" alt="song img" />
@@ -160,21 +309,9 @@
             <div class="v1"></div>
           </div>
           <div class="song_controls_holder">
-            <div class="song_controls_upper">
-              <div class="song_duration current_duration">
-                <p><p id="song_current_duration_min">0</p>:<p id="song_current_duration_sec">00</p></p>
-              </div>
-              <div class="song_seekbar">
-                <input id="seekbar" min="0" max="100" value="0" type="range">
-              </div>
-              <div class="song_duration total_duration">
-                <p id="song_total_duration">0:00</p>
-              </div>
-            </div>
-            <div class="song_controls_lower">
-              <img id="song_status_img" src="/assets/icons/play.svg" alt="">
-            </div>
+            <audio id="audio" src="" controls autoplay></audio>
           </div>
+          <button id="leave_room_btn" onclick="leaveRoom()">Leave Room</button>
         </footer>
       </div>
     </div>
@@ -187,7 +324,7 @@
           <img src="/assets/icons/close.png" alt="close"
         /></span>
       </h3>
-      <div class="song_noti_list">
+      <div id="song_noti_list" class="song_noti_list">
         <!--song request card-->
         <div class="song_req_noti_card">
           <div class="song_req_noti_img">
@@ -205,6 +342,7 @@
             </div>
           </div>
         </div>
+        <!--song request card end-->
       </div>
     </div>
     <!--song req notification ends-->
@@ -219,7 +357,7 @@
 
       <div class="friend_noti_list" id="friend_noti_list">
         <!--friend request card-->
-        <!--test-->
+
         <div class="friend_req_noti_card">
           <div class="friend_req_noti_img">
             <img src="/assets/icons/profile.png" alt="profile" />
@@ -247,10 +385,6 @@
     //global declartions
     var socket = io();
     var audio = document.getElementById("audio");
-    var seekbar = document.getElementById("seekbar");
-    var song_status_img = document.getElementById("song_status_img");
-
-    var song_status = 0;
 
     //  open overlay
     function open_overlay() {
@@ -368,6 +502,7 @@
       sessionStorage.setItem("username", stack.sessionData.username);
       sessionStorage.setItem("_id", stack.sessionData._id);
       sessionStorage.setItem("room_status", 0);
+      sessionStorage.setItem("room_host", 0);
 
       document.getElementById("profile_username").innerHTML =
         sessionStorage.getItem("username");
@@ -379,6 +514,10 @@
       //update friends count
       document.getElementById("friendsCount").innerHTML =
         stack.friendsCount[0].friends.length;
+      
+        //update room request count
+      document.getElementById("room_req_count").innerHTML = 
+        stack.friendsCount[0].room_request.length;
 
       //remove existing songs
       exist_songs.forEach((card) => {
@@ -434,50 +573,20 @@
           const room_status = sessionStorage.getItem("room_status");
           if (room_status == 0) {
             audio.setAttribute("src", stack.song[i].path);
-            
+
             document.getElementById("song_name").innerHTML = stack.song[i].name;
             document.getElementById("song_artist").innerHTML =
               stack.song[i].artist;
-            document.getElementById("song_total_duration").innerHTML = stack.song[i].duration;
-            song_status = 1;
-            song_status_img.setAttribute("src","/assets/icons/pause.svg");
+            document.getElementById("song_total_duration").innerHTML =
+              stack.song[i].duration;
+            song_status_img.setAttribute("src", "/assets/icons/pause.svg");
             audio.load();
-            audio.onloadedmetadata = function(){
-              seekbar.setAttribute("max",audio.duration);
-              seekbar.setAttribute("value",0);
-            }
-          }else{
+          } else {
             alert("working");
           }
         });
       }
     });
-
-    //play and pause song
-    song_status_img.addEventListener("click",()=>{
-      if(song_status == 0){
-        song_status_img.setAttribute("src","/assets/icons/pause.svg");
-        audio.play();
-        song_status = 1;
-      }else{
-        song_status_img.setAttribute("src","/assets/icons/play.svg");
-        audio.pause();
-        song_status = 0;
-      }
-    });
-    //update audio on seekbar change
-    seekbar.onchange = function(){
-      audio.currentTime = seekbar.value;
-    }
-
-    //update seekbar
-    audio.ontimeupdate = function(){
-      let currTime = Math.floor(audio.currentTime);
-      document.getElementById("song_current_duration_sec").innerHTML = currTime;
-      seekbar.value = currTime;
-      
-    }
-    
 
     //logout user
     function logout_user() {
@@ -493,7 +602,97 @@
     }
 
     // open song req notification
+    
     function showSongReq() {
+      const parent_list = document.getElementById("song_noti_list");
+      const existing_room_card = document.querySelectorAll(".song_req_noti_card");
+
+      axios.get("/getRoomReqList").then((res)=>{
+
+        //remove existing card
+        existing_room_card.forEach((card)=>{
+          card.remove();
+        });
+
+        //create new card
+
+        for(let i = 0;i<res.data[0].room_request.length;i++){
+          //create room card
+          const room_req_card = document.createElement("div");
+          room_req_card.classList.add("song_req_noti_card");
+
+          //create song req img div
+          const song_req_img_div = document.createElement("div"); 
+          song_req_img_div.classList.add("song_req_noti_img");
+          const song_req_img_tag = document.createElement("img");
+          song_req_img_tag.setAttribute("src","/assets/icons/profile.png");
+          song_req_img_div.appendChild(song_req_img_tag);
+          
+          //create room req noti info div
+          const song_req_info_div = document.createElement("div");
+          song_req_info_div.classList.add("song_req_noti_info");
+          const song_req_info_username_p = document.createElement("p");
+          const song_req_info_username_p_text = document.createTextNode(res.data[0].room_request[i].username);
+          song_req_info_username_p.appendChild(song_req_info_username_p_text);
+          song_req_info_div.appendChild(song_req_info_username_p);
+          
+          //create song req controls div
+          const song_req_control_div = document.createElement("div");
+          song_req_control_div.classList.add("song_req_noti_controls");
+
+          //create song req contorl sub 1
+          const song_req_control_sub_1 = document.createElement("div");
+          song_req_control_sub_1.classList.add("song_req_noti_controls_sub");
+          const song_req_control_sub_1_img = document.createElement("img");
+          song_req_control_sub_1_img.setAttribute("src","/assets/icons/cross.png");
+          song_req_control_sub_1.appendChild(song_req_control_sub_1_img);
+          
+          //create song req contorl sub 2 
+          const song_req_control_sub_2 = document.createElement("div");
+          song_req_control_sub_2.classList.add("song_req_noti_controls_sub");
+          const song_req_control_sub_2_img = document.createElement("img");
+          song_req_control_sub_2_img.setAttribute("src","/assets/icons/correct.png");
+          song_req_control_sub_2.appendChild(song_req_control_sub_2_img);
+
+          song_req_control_div.appendChild(song_req_control_sub_1);
+          song_req_control_div.appendChild(song_req_control_sub_2);
+
+          //add event listener
+
+          //decline room invite
+          song_req_control_sub_1_img.addEventListener("click",()=>{
+            axios.get("/declineRoom",{
+              params:{
+                user_id: res.data[0].room_request[i]._id
+              }
+            }).then((res)=>{
+              document.getElementById("room_req_count").innerHTML = res.data[0].room_request.length;
+              room_req_card.style.display = "none";
+            }); 
+          });
+
+          //accept room invite
+          song_req_control_sub_2_img.addEventListener("click",()=>{
+            if(res.data[0].room_request[i].room_id ==""){
+              showAlert("Room has been closed");
+            }else{
+              if(sessionStorage.getItem("room_status") == 1){
+                showAlert("You are already in room");
+              }else{
+                socket.emit("acceptedRoomInvite",{user_id:res.data[0].room_request[i]._id,room_id:res.data[0].room_request[i].room_id});
+                room_req_card.style.display = "none";
+              }
+            }
+          });
+
+          //creating final card
+          room_req_card.appendChild(song_req_img_div);
+          room_req_card.appendChild(song_req_info_div);
+          room_req_card.appendChild(song_req_control_div);
+
+          parent_list.appendChild(room_req_card);
+        }
+      });
       document.getElementById("song_req_noti_con").style.display = "flex";
     }
     // close song req notification
@@ -517,7 +716,6 @@
       axios.get("/friend_request_recived").then((res) => {
         document.getElementById("friend_req_noti_con").style.display = "flex";
         for (let i = 0; i < res.data[0].friend_request.length; i++) {
-          //test
           //create friend req card
           const friend_req_card = document.createElement("div");
           friend_req_card.classList.add("friend_req_noti_card");
@@ -643,10 +841,209 @@
     }
 
     //create room
-    function createRoom(id) {
-      document.getElementById("room_status_text").style.display = "none";
-      id.style.backgroundColor = "#dc3545";
-      id.innerHTML = "Leave Room";
+    function createRoom() {
+      sessionStorage.setItem("room_host", 1);
+      sessionStorage.setItem("room_status", 1);
+      socket.emit("createRoomReq");
+    }
+    // on created room
+    socket.on("createdRoom", () => {
+      document.getElementById("room_list_ini").style.display = "none";
+      document.getElementById("room_content").style.display = "flex";
+      document.getElementById("room_title").innerHTML =
+        sessionStorage.getItem("username") + "'s Room";
+      document.getElementById("room_invite_friends_holder").style.display =
+        "flex";
+      document.getElementById("leave_room_btn").style.display = "block";
+    });
+
+    //on joined room
+    socket.on("joinedRoom",(data)=>{
+      sessionStorage.setItem("room_host",0);
+      sessionStorage.setItem("room_status",1);
+      document.getElementById("room_list_ini").style.display = "none";
+      document.getElementById("room_content").style.display = "flex";
+      document.getElementById("room_title").innerHTML =
+        data.room_data[0].createdBy.username + "'s Room";
+      document.getElementById("room_invite_friends_holder").style.display =
+        "none";
+      document.getElementById("leave_room_btn").style.display = "block";
+    
+      document.getElementById("room_req_count").innerHTML = data.user_data[0].room_request.length;
+    });
+
+    //on new user connected/disconneted
+    socket.on("userUpdate",(data)=>{
+      document.getElementById("joined_room_count").innerHTML = data[0].in_room.length;
+    });
+
+
+    //leave Room
+    function leaveRoom() {
+      if(sessionStorage.getItem("room_host") == 1){
+        alert("you are the host");
+      }else{
+        socket.emit("leaveRoomReq");
+      }
+    }
+
+    
+    
+    //on left room
+    socket.on("leftRoom", () => {
+      sessionStorage.setItem("room_host", 0);
+      sessionStorage.setItem("room_status", 0);
+      document.getElementById("room_list_ini").style.display = "flex";
+      document.getElementById("room_content").style.display = "none";
+      document.getElementById("room_title").innerHTML = "Room";
+      document.getElementById("room_invite_friends_holder").style.display =
+        "none";
+      document.getElementById("leave_room_btn").style.display = "none";
+      document.getElementById("joined_room_count").innerHTML = data[0].in_room.length;
+    });
+
+    //on room request recived
+    socket.on("recivedRoomReq",(data)=>{
+      document.getElementById("room_req_count").innerHTML = data[0].room_request.length;
+    });
+
+    //open Room Info
+    function openRoomTab(id, tab_id) {
+      let header_btns = document.getElementsByClassName("room_content_btns");
+      let tabs = document.getElementsByClassName("room_container");
+      for (let i = 0; i < header_btns.length; i++) {
+        header_btns[i].classList.remove("active");
+      }
+      for (let i = 0; i < tabs.length; i++) {
+        tabs[i].classList.remove("active_container");
+      }
+      id.classList.add("active");
+      document.getElementById(tab_id).classList.add("active_container");
+    }
+
+    //room invite container
+    function open_room_invite_con() {
+      axios.get("/getOnlineFriends").then((res) => {
+        const parent = document.getElementById("room_invite_friends_list");
+        const room_invite_card_exi = document.querySelectorAll(
+          ".room_invite_friends_card"
+        );
+    
+        //remove existing card
+        room_invite_card_exi.forEach((card) => {
+          card.remove();
+        });
+
+        //create new card
+        for (let i = 0; i < res.data[0].friends.length; i++) {
+          if (
+            res.data[0].friends[i].room_status == false &&
+            res.data[0].friends[i].socket_id != ""
+          ) {
+            const room_invite_card = document.createElement("div");
+            room_invite_card.classList.add("room_invite_friends_card");
+
+            //create room invite freinds img holder div
+            const room_invite_friends_holder_img_div =
+              document.createElement("div");
+            room_invite_friends_holder_img_div.classList.add(
+              "room_invite_friends_card_img_holder"
+            );
+            const room_invite_friends_img = document.createElement("img");
+            room_invite_friends_img.setAttribute(
+              "src",
+              "/assets/icons/profile.png"
+            );
+            room_invite_friends_holder_img_div.appendChild(
+              room_invite_friends_img
+            );
+
+            //creating room invite friend info holder div
+            const room_invite_friends_card_info_holder_div =
+              document.createElement("div");
+            room_invite_friends_card_info_holder_div.classList.add(
+              "room_invite_friends_card_info_holder"
+            );
+            const room_invite_friends_card_info_holder_p =
+              document.createElement("p");
+            const room_invite_friends_card_info_holder_p_text =
+              document.createTextNode(res.data[0].friends[i].username);
+            room_invite_friends_card_info_holder_p.appendChild(
+              room_invite_friends_card_info_holder_p_text
+            );
+            room_invite_friends_card_info_holder_div.appendChild(
+              room_invite_friends_card_info_holder_p
+            );
+
+            const room_invite_friends_card_btn_holder_div =
+              document.createElement("div");
+            room_invite_friends_card_btn_holder_div.classList.add(
+              "room_invite_friends_card_btn_holder"
+            );
+
+            const room_invite_friends_card_btn_holder_div_btn =
+              document.createElement("button");
+            const room_invite_friends_card_btn_holder_div_btn_text =
+              document.createTextNode("Invite");
+            room_invite_friends_card_btn_holder_div_btn.appendChild(
+              room_invite_friends_card_btn_holder_div_btn_text
+            );
+            room_invite_friends_card_btn_holder_div.appendChild(
+              room_invite_friends_card_btn_holder_div_btn
+            );
+
+            if (sessionStorage.getItem("room_host") == 0) {
+              room_invite_friends_card_btn_holder_div_btn.style.display =
+                "none";
+            }
+            for(let x = 0; x<res.data[0].friends[i].room_request.length;x++){
+              if(res.data[0].friends[i].room_request[x] == sessionStorage.getItem("_id")){
+                room_invite_friends_card_btn_holder_div_btn.disabled = true;
+                room_invite_friends_card_btn_holder_div_btn.innerHTML = "Invited";
+                room_invite_friends_card_btn_holder_div_btn.style.backgroundColor = "orange";
+                room_invite_friends_card_btn_holder_div_btn.style.color = "black";
+              }
+            }
+            //adding event listener
+            room_invite_friends_card_btn_holder_div_btn.addEventListener(
+              "click",
+              () => {
+                room_invite_friends_card_btn_holder_div_btn.innerHTML = "Invited";
+                room_invite_friends_card_btn_holder_div_btn.disabled = true;
+                socket.emit("send_room_request",{user_id:res.data[0].friends[i]._id,socket_id:res.data[0].friends[i].socket_id});
+              }
+            );
+
+            //creating final card
+            room_invite_card.appendChild(room_invite_friends_holder_img_div);
+            room_invite_card.appendChild(
+              room_invite_friends_card_info_holder_div
+            );
+            room_invite_card.appendChild(
+              room_invite_friends_card_btn_holder_div
+            );
+            parent.appendChild(room_invite_card);
+          } 
+        }
+      });
+      document.getElementById("room_invite_friends_con").style.display = "flex";
+    }
+    //close room ivite con
+    function close_room_invite_con() {
+      document.getElementById("room_invite_friends_con").style.display = "none";
+    }
+
+    //custom alert
+    function showAlert(msg){
+      document.getElementById("custom_room_alert").style.display = "flex";
+      document.getElementById("alert_msg").innerHTML = msg;
+      setTimeout(()=>{
+        closeAlert();
+      },2000);
+    }
+    //close alert
+    function closeAlert(){
+      document.getElementById("custom_room_alert").style.display = "none";
     }
   </script>
 </html>

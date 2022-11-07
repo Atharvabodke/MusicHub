@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const path = require("path");
 const SongSchema = require("./public/schema/Songs.js");
 const UserSchema = require("./public/schema/User.js");
+const RoomSchema = require("./public/schema/Room.js");
 const config = require("config");
 const db_url = config.get("musichub.dbConfig.url");
 const local_url = config.get("musichub.dbConfig.local_url");
@@ -59,9 +60,11 @@ app.post("/signupuser", (req, res) => {
       username: req.body.username,
       password: req.body.password,
       socket_id: "",
+      room_status: false,
+      room_id: [],
+      room_request: [],
       friends: [],
       friend_request: [],
-      playlist: [],
     });
   }
 });
@@ -129,7 +132,7 @@ io.on("connection", (socket) => {
 
       friend_list = await UserSchema.find(
         { _id: socket.handshake.session._id },
-        { _id: 0, friends: 1 }
+        { _id: 0, friends: 1,room_request:1 }
       );
     }
 
@@ -164,6 +167,106 @@ io.on("connection", (socket) => {
       friendCount = await UserSchema.find(
         { _id: data.user_id },
         { _id: 0, friends: 1 }
+      );
+    }
+  });
+
+  // create room
+  socket.on("createRoomReq", () => {
+    let room;
+    mongoose.connect(local_url).then(() => {
+      createRoom().then(() => {
+        updateUserRoom().then(() => {
+          socket.handshake.session.room_name =  room._id;
+          socket.handshake.session.save();
+          socket.join("room-" +socket.handshake.session.room_name);
+          socket.emit("createdRoom");
+        });
+      });
+    });
+
+    async function createRoom() {
+      room = await RoomSchema.create({
+        createdBy: socket.handshake.session._id,
+        in_room: [socket.handshake.session._id],
+      });
+    }
+
+    async function updateUserRoom() {
+      await UserSchema.updateMany(
+        { _id: socket.handshake.session._id },
+        { $set: { room_status: true }, $push: { room_id: room._id } }
+      );
+    }
+  });
+
+  //on sent room request
+  socket.on("send_room_request",(data)=>{
+    let room_req_count;
+
+    updateUserRoomData().then(()=>{
+      socket.broadcast.to(data.socket_id).emit("recivedRoomReq",room_req_count);
+    });
+
+    async function updateUserRoomData(){
+      await UserSchema.updateOne({_id:data.user_id},{$push:{"room_request":socket.handshake.session._id}});
+      room_req_count = await UserSchema.find({_id:data.user_id});
+    }
+  });
+
+  //on accept room invite
+  socket.on("acceptedRoomInvite",(data)=>{
+    let user;
+    let room;
+    mongoose.connect(local_url).then(()=>{
+      updateSelf().then(()=>{
+        updateRoom().then(()=>{
+          socket.handshake.session.room_name =  data.room_id;
+          socket.handshake.session.save();
+          socket.join("room-" +socket.handshake.session.room_name);
+          io.sockets.in("room-" + socket.handshake.session.room_name).emit("userUpdate",room);
+          //socket.to 
+          socket.emit("joinedRoom",{user_data:user,room_data:room});
+        });
+      });
+    });
+    async function updateSelf(){
+      //update self
+      user = await UserSchema.updateOne({_id:socket.handshake.session._id},{$set:{room_status:true},$push:{room_id:data.room_id},$pull:{room_request:data.user_id}});
+    }
+
+    async function updateRoom(){
+      await RoomSchema.updateOne({_id:data.room_id},{$push:{in_room:socket.handshake.session._id}});
+      room = await RoomSchema.find({_id:data.room_id}).populate("createdBy");
+    }
+
+  });
+
+  //leave room
+  socket.on("leaveRoomReq", () => {
+    let room;
+    let room_count;
+    mongoose.connect(local_url).then(() => {
+      leaveRoom().then(() => {
+        socket.leave("room-" + socket.handshake.session.room_name);
+        updateUserRoom().then(() => {
+          io.sockets.in("room-" + socket.handshake.session.room_name).emit("userUpdate",room_count);
+          socket.emit("leftRoom",room);
+          delete socket.handshake.session.room_name;
+          socket.handshake.session.save();
+        });
+      });
+    });
+
+    async function leaveRoom() {
+      room = await RoomSchema.updateOne({_id:socket.handshake.session.room_name},{$pull:{in_room:socket.handshake.session._id}});
+      room_count = await RoomSchema.find({_id:socket.handshake.session.room_name});
+    }
+
+    async function updateUserRoom() {
+      await UserSchema.updateOne(
+        { _id: socket.handshake.session._id },
+        { $set: { room_id: [], room_status: false } }
       );
     }
   });
@@ -320,6 +423,53 @@ app.get("/accept_friend", (req, res) => {
       { _id: req.session._id },
       { _id: 0, friends: 1 }
     );
+  }
+});
+
+//get online friends list
+app.get("/getOnlineFriends", (req, res) => {
+  let users;
+  mongoose.connect(local_url).then(() => {
+    getOnlineFriends().then(() => {
+      res.send(users);
+    });
+  });
+
+  async function getOnlineFriends() {
+    //users = await UserSchema.find({_id:req.session._id},{_id:0,"friends":1}).populate("friends");
+    users = await UserSchema.find(
+      { _id: req.session._id },
+      { _id: 0, friends: 1 }
+    ).populate("friends");
+  }
+});
+
+//get room req list
+app.get("/getRoomReqList",(req,res)=>{
+  let user;
+  mongoose.connect(local_url).then(()=>{
+    getRoomReqList().then(()=>{
+      res.send(user);
+    });
+  });
+
+  async function getRoomReqList(){
+    user = await UserSchema.find({_id:req.session._id},{_id:0,"room_request":1}).populate("room_request");
+  }
+});
+
+//decline Room req
+app.get("/declineRoom",(req,res)=>{
+  let user;
+  mongoose.connect(local_url).then(()=>{
+    declineReq().then(()=>{
+      res.send(user);
+    });
+  });
+
+  async function declineReq(){
+    await UserSchema.updateOne({_id:req.session._id},{$pull:{"room_request":req.query.user_id}});
+    user = await UserSchema.find({_id:req.session._id},{_id:0,room_request:1});
   }
 });
 

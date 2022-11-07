@@ -11,6 +11,13 @@ const UserSchema = mongoose.Schema({
     socket_id:{
         type: String
     },
+    room_id:{
+        type: [mongoose.SchemaTypes.ObjectId],
+        ref: "rooms",
+    },
+    room_status:{
+        type:Boolean,
+    },
     friends:{
         type: [mongoose.SchemaTypes.ObjectId],
         ref: "users"
@@ -19,9 +26,9 @@ const UserSchema = mongoose.Schema({
         type: [mongoose.SchemaTypes.ObjectId],
         ref: "users"
     },
-    playlist:{
+    room_request:{
         type: [mongoose.SchemaTypes.ObjectId],
-        ref: "songs"
+        ref: "users"
     },
 });
 
