@@ -160,7 +160,7 @@
                     <img src="/assets/icons/profile.png" alt="friends" />
                   </div>
                   <div class="room_invite_friends_card_info_holder">
-                    <p>Vansh</p>
+                    <p></p>
                   </div>
                   <div class="room_invite_friends_card_btn_holder">
                     <button>Invite</button>
@@ -203,6 +203,7 @@
                   >
                     <div id="chat_con_text_list" class="chat_con_text_list">
                       <!--song room text card-->
+                      <!--test-->
                       <div class="song_room_text_card">
                         <div class="song_room_text_card_sender_name">
                           <p>Ved</p>
@@ -259,10 +260,11 @@
                       <input
                         id="song_text"
                         type="text"
+                        name="chat"
                         placeholder="Type Message..."
                         maxlength="60"
                       />
-                      <div id="send_img_div">
+                      <div id="send_img_div" onclick="sendChat()">
                         <img
                           src="/assets/icons/send_message.png"
                           alt="send message"
@@ -278,7 +280,7 @@
                           <img src="/assets/icons/profile.png" alt="profile" />
                         </div>
                         <div class="room_card_info_holder">
-                          <p>Vansh</p>
+                          <p>atharva</p>
                         </div>
                         <div class="room_card_btn_holder">
                           <button>Remove</button>
@@ -309,7 +311,16 @@
             <div class="v1"></div>
           </div>
           <div class="song_controls_holder">
-            <audio id="audio" src="" controls autoplay></audio>
+            <div id="audio_hider"></div>
+            <audio
+              id="audio_tag"
+              src=""
+              onpause="onAudioPaused()"
+              onplay="onAudioPlay()"
+              onseeked="onAudioSeeked()"
+              controls
+              autoplay
+            ></audio>
           </div>
           <button id="leave_room_btn" onclick="leaveRoom()">Leave Room</button>
         </footer>
@@ -384,7 +395,7 @@
   <script type="text/javascript">
     //global declartions
     var socket = io();
-    var audio = document.getElementById("audio");
+    var audio_tag = document.getElementById("audio_tag");
 
     //  open overlay
     function open_overlay() {
@@ -514,9 +525,9 @@
       //update friends count
       document.getElementById("friendsCount").innerHTML =
         stack.friendsCount[0].friends.length;
-      
-        //update room request count
-      document.getElementById("room_req_count").innerHTML = 
+
+      //update room request count
+      document.getElementById("room_req_count").innerHTML =
         stack.friendsCount[0].room_request.length;
 
       //remove existing songs
@@ -571,18 +582,30 @@
 
         song_card.addEventListener("click", () => {
           const room_status = sessionStorage.getItem("room_status");
+          const room_host = sessionStorage.getItem("room_host");
           if (room_status == 0) {
-            audio.setAttribute("src", stack.song[i].path);
+            audio_tag.setAttribute("src", stack.song[i].path);
 
             document.getElementById("song_name").innerHTML = stack.song[i].name;
             document.getElementById("song_artist").innerHTML =
               stack.song[i].artist;
-            document.getElementById("song_total_duration").innerHTML =
-              stack.song[i].duration;
-            song_status_img.setAttribute("src", "/assets/icons/pause.svg");
-            audio.load();
           } else {
-            alert("working");
+            if (room_host == 1) {
+              //play song for room
+              audio_tag.setAttribute("src", stack.song[i].path);
+
+              document.getElementById("song_name").innerHTML =
+                stack.song[i].name;
+              document.getElementById("song_artist").innerHTML =
+                stack.song[i].artist;
+              socket.emit("new_song_started", {
+                song_name: stack.song[i].name,
+                song_path: stack.song[i].path,
+                song_artist: stack.song[i].artist,
+              });
+            } else {
+              showAlert("You are not the host");
+            }
           }
         });
       }
@@ -602,40 +625,43 @@
     }
 
     // open song req notification
-    
+
     function showSongReq() {
       const parent_list = document.getElementById("song_noti_list");
-      const existing_room_card = document.querySelectorAll(".song_req_noti_card");
+      const existing_room_card = document.querySelectorAll(
+        ".song_req_noti_card"
+      );
 
-      axios.get("/getRoomReqList").then((res)=>{
-
+      axios.get("/getRoomReqList").then((res) => {
         //remove existing card
-        existing_room_card.forEach((card)=>{
+        existing_room_card.forEach((card) => {
           card.remove();
         });
 
         //create new card
 
-        for(let i = 0;i<res.data[0].room_request.length;i++){
+        for (let i = 0; i < res.data[0].room_request.length; i++) {
           //create room card
           const room_req_card = document.createElement("div");
           room_req_card.classList.add("song_req_noti_card");
 
           //create song req img div
-          const song_req_img_div = document.createElement("div"); 
+          const song_req_img_div = document.createElement("div");
           song_req_img_div.classList.add("song_req_noti_img");
           const song_req_img_tag = document.createElement("img");
-          song_req_img_tag.setAttribute("src","/assets/icons/profile.png");
+          song_req_img_tag.setAttribute("src", "/assets/icons/profile.png");
           song_req_img_div.appendChild(song_req_img_tag);
-          
+
           //create room req noti info div
           const song_req_info_div = document.createElement("div");
           song_req_info_div.classList.add("song_req_noti_info");
           const song_req_info_username_p = document.createElement("p");
-          const song_req_info_username_p_text = document.createTextNode(res.data[0].room_request[i].username);
+          const song_req_info_username_p_text = document.createTextNode(
+            res.data[0].room_request[i].username
+          );
           song_req_info_username_p.appendChild(song_req_info_username_p_text);
           song_req_info_div.appendChild(song_req_info_username_p);
-          
+
           //create song req controls div
           const song_req_control_div = document.createElement("div");
           song_req_control_div.classList.add("song_req_noti_controls");
@@ -644,14 +670,20 @@
           const song_req_control_sub_1 = document.createElement("div");
           song_req_control_sub_1.classList.add("song_req_noti_controls_sub");
           const song_req_control_sub_1_img = document.createElement("img");
-          song_req_control_sub_1_img.setAttribute("src","/assets/icons/cross.png");
+          song_req_control_sub_1_img.setAttribute(
+            "src",
+            "/assets/icons/cross.png"
+          );
           song_req_control_sub_1.appendChild(song_req_control_sub_1_img);
-          
-          //create song req contorl sub 2 
+
+          //create song req contorl sub 2
           const song_req_control_sub_2 = document.createElement("div");
           song_req_control_sub_2.classList.add("song_req_noti_controls_sub");
           const song_req_control_sub_2_img = document.createElement("img");
-          song_req_control_sub_2_img.setAttribute("src","/assets/icons/correct.png");
+          song_req_control_sub_2_img.setAttribute(
+            "src",
+            "/assets/icons/correct.png"
+          );
           song_req_control_sub_2.appendChild(song_req_control_sub_2_img);
 
           song_req_control_div.appendChild(song_req_control_sub_1);
@@ -660,26 +692,32 @@
           //add event listener
 
           //decline room invite
-          song_req_control_sub_1_img.addEventListener("click",()=>{
-            axios.get("/declineRoom",{
-              params:{
-                user_id: res.data[0].room_request[i]._id
-              }
-            }).then((res)=>{
-              document.getElementById("room_req_count").innerHTML = res.data[0].room_request.length;
-              room_req_card.style.display = "none";
-            }); 
+          song_req_control_sub_1_img.addEventListener("click", () => {
+            axios
+              .get("/declineRoom", {
+                params: {
+                  user_id: res.data[0].room_request[i]._id,
+                },
+              })
+              .then((res) => {
+                document.getElementById("room_req_count").innerHTML =
+                  res.data[0].room_request.length;
+                room_req_card.style.display = "none";
+              });
           });
 
           //accept room invite
-          song_req_control_sub_2_img.addEventListener("click",()=>{
-            if(res.data[0].room_request[i].room_id ==""){
+          song_req_control_sub_2_img.addEventListener("click", () => {
+            if (res.data[0].room_request[i].room_id == "") {
               showAlert("Room has been closed");
-            }else{
-              if(sessionStorage.getItem("room_status") == 1){
+            } else {
+              if (sessionStorage.getItem("room_status") == 1) {
                 showAlert("You are already in room");
-              }else{
-                socket.emit("acceptedRoomInvite",{user_id:res.data[0].room_request[i]._id,room_id:res.data[0].room_request[i].room_id});
+              } else {
+                socket.emit("acceptedRoomInvite", {
+                  user_id: res.data[0].room_request[i]._id,
+                  room_id: res.data[0].room_request[i].room_id,
+                });
                 room_req_card.style.display = "none";
               }
             }
@@ -855,42 +893,152 @@
       document.getElementById("room_invite_friends_holder").style.display =
         "flex";
       document.getElementById("leave_room_btn").style.display = "block";
+
+      //chat con
+      //remove all room texts
+      const chat_con_parent = document.getElementById("chat_con_text_list");
+      const song_room_text_card = chat_con_parent.querySelectorAll(
+        ".song_room_text_card"
+      );
+      song_room_text_card.forEach((card) => {
+        card.remove();
+      });
+    });
+
+    //send chat
+    function sendChat() {
+      let chat_text = document.getElementById("song_text").value;
+      if (chat_text == "") {
+        showAlert("Chat cannot be empty");
+      } else {
+        socket.emit("sendChat", chat_text);
+      }
+    }
+    //on recived chat
+    socket.on("chatRecived", (data) => {
+      const chat_con_parent = document.getElementById("chat_con_text_list");
+      //test
+      //create text card
+      const song_room_text_card = document.createElement("div");
+      song_room_text_card.classList.add("song_room_text_card");
+      if(data.sender_id == sessionStorage.getItem("_id")){
+        song_room_text_card.classList.add("sender");
+      }
+
+      //song room sender name div
+      const song_room_sender_name_div = document.createElement("div");
+      song_room_sender_name_div.classList.add("song_room_text_card_sender_name");
+      const song_room_text_card_sender_name_p = document.createElement("p");
+      if(data.sender_id == sessionStorage.getItem("_id")){
+        song_room_text_card_sender_name_p.classList.add("sender_name");
+      }
+      const song_room_text_card_sender_name_p_text = document.createTextNode(data.sender_name);
+      song_room_text_card_sender_name_p.appendChild(song_room_text_card_sender_name_p_text);
+      song_room_sender_name_div.appendChild(song_room_text_card_sender_name_p);
+
+      //song room sender msg div
+      const song_room_sender_msg_div = document.createElement("div");
+      song_room_sender_msg_div.classList.add("song_room_text_card_sender_msg");
+      const song_room_sender_msg_p = document.createElement("p");
+      const song_room_sender_msg_p_text = document.createTextNode(data.msg);
+      song_room_sender_msg_p.appendChild(song_room_sender_msg_p_text);
+      song_room_sender_msg_div.appendChild(song_room_sender_msg_p);
+
+      //create final card
+      song_room_text_card.appendChild(song_room_sender_name_div);
+      song_room_text_card.appendChild(song_room_sender_msg_div);
+
+      chat_con_parent.appendChild(song_room_text_card);
+
+      document.getElementById("song_text").value = "";
     });
 
     //on joined room
-    socket.on("joinedRoom",(data)=>{
-      sessionStorage.setItem("room_host",0);
-      sessionStorage.setItem("room_status",1);
-      document.getElementById("room_list_ini").style.display = "none";
-      document.getElementById("room_content").style.display = "flex";
-      document.getElementById("room_title").innerHTML =
-        data.room_data[0].createdBy.username + "'s Room";
-      document.getElementById("room_invite_friends_holder").style.display =
-        "none";
-      document.getElementById("leave_room_btn").style.display = "block";
-    
-      document.getElementById("room_req_count").innerHTML = data.user_data[0].room_request.length;
+    socket.on("joinedRoom", (data) => {
+      joinedRoomPromise().then(() => {
+        audio_tag.setAttribute("src", "");
+        document.getElementById("audio_hider").style.display = "block";
+
+        //remove all room texts
+        const chat_con_parent = document.getElementById("chat_con_text_list");
+        const song_room_text_card = chat_con_parent.querySelectorAll(
+          ".song_room_text_card"
+        );
+        song_room_text_card.forEach((card) => {
+          card.remove();
+        });
+      });
+      async function joinedRoomPromise() {
+        sessionStorage.setItem("room_host", 0);
+        sessionStorage.setItem("room_status", 1);
+        document.getElementById("room_list_ini").style.display = "none";
+        document.getElementById("room_content").style.display = "flex";
+        document.getElementById("room_title").innerHTML =
+          data.room_data[0].createdBy.username + "'s Room";
+        document.getElementById("room_invite_friends_holder").style.display =
+          "none";
+        document.getElementById("leave_room_btn").style.display = "block";
+        document.getElementById("room_req_count").innerHTML =
+          data.user_data[0].room_request.length;
+      }
     });
+
+    //on room new song started
+    socket.on("room_new_song_started", (data) => {
+      audio_tag.setAttribute("src", data.song_path);
+      document.getElementById("song_name").innerHTML = data.song_name;
+      document.getElementById("song_artist").innerHTML = data.song_artist;
+    });
+
+    // on pausedSong
+    socket.on("pausedSong", (data) => {
+      audio_tag.pause();
+    });
+    // on playedSong
+    socket.on("playedSong", (data) => {
+      audio_tag.play();
+    });
+    // on seekedSong
+    socket.on("seekedSong", (data) => {
+      audio_tag.currentTime = data;
+      audio_tag.play();
+    });
+
+    //audio on paused
+    function onAudioPaused() {
+      if (sessionStorage.getItem("room_host") == 1) {
+        socket.emit("pauseSong", "paused");
+      }
+    }
+    function onAudioPlay() {
+      if (sessionStorage.getItem("room_host") == 1) {
+        socket.emit("playSong", "play");
+      }
+    }
+    function onAudioSeeked() {
+      if (sessionStorage.getItem("room_host") == 1) {
+        let currTime = audio_tag.currentTime;
+        socket.emit("seekSong", currTime);
+      }
+    }
 
     //on new user connected/disconneted
-    socket.on("userUpdate",(data)=>{
-      document.getElementById("joined_room_count").innerHTML = data[0].in_room.length;
+    socket.on("userUpdate", (data) => {
+      document.getElementById("joined_room_count").innerHTML =
+        data[0].in_room.length;
     });
-
 
     //leave Room
     function leaveRoom() {
-      if(sessionStorage.getItem("room_host") == 1){
+      if (sessionStorage.getItem("room_host") == 1) {
         alert("you are the host");
-      }else{
+      } else {
         socket.emit("leaveRoomReq");
       }
     }
 
-    
-    
     //on left room
-    socket.on("leftRoom", () => {
+    socket.on("leftRoom", (data) => {
       sessionStorage.setItem("room_host", 0);
       sessionStorage.setItem("room_status", 0);
       document.getElementById("room_list_ini").style.display = "flex";
@@ -899,12 +1047,14 @@
       document.getElementById("room_invite_friends_holder").style.display =
         "none";
       document.getElementById("leave_room_btn").style.display = "none";
-      document.getElementById("joined_room_count").innerHTML = data[0].in_room.length;
+      audio_tag.setAttribute("src", "");
+      document.getElementById("audio_hider").style.display = "none";
     });
 
     //on room request recived
-    socket.on("recivedRoomReq",(data)=>{
-      document.getElementById("room_req_count").innerHTML = data[0].room_request.length;
+    socket.on("recivedRoomReq", (data) => {
+      document.getElementById("room_req_count").innerHTML =
+        data[0].room_request.length;
     });
 
     //open Room Info
@@ -928,7 +1078,7 @@
         const room_invite_card_exi = document.querySelectorAll(
           ".room_invite_friends_card"
         );
-    
+
         //remove existing card
         room_invite_card_exi.forEach((card) => {
           card.remove();
@@ -996,21 +1146,35 @@
               room_invite_friends_card_btn_holder_div_btn.style.display =
                 "none";
             }
-            for(let x = 0; x<res.data[0].friends[i].room_request.length;x++){
-              if(res.data[0].friends[i].room_request[x] == sessionStorage.getItem("_id")){
+            for (
+              let x = 0;
+              x < res.data[0].friends[i].room_request.length;
+              x++
+            ) {
+              if (
+                res.data[0].friends[i].room_request[x] ==
+                sessionStorage.getItem("_id")
+              ) {
                 room_invite_friends_card_btn_holder_div_btn.disabled = true;
-                room_invite_friends_card_btn_holder_div_btn.innerHTML = "Invited";
-                room_invite_friends_card_btn_holder_div_btn.style.backgroundColor = "orange";
-                room_invite_friends_card_btn_holder_div_btn.style.color = "black";
+                room_invite_friends_card_btn_holder_div_btn.innerHTML =
+                  "Invited";
+                room_invite_friends_card_btn_holder_div_btn.style.backgroundColor =
+                  "orange";
+                room_invite_friends_card_btn_holder_div_btn.style.color =
+                  "black";
               }
             }
             //adding event listener
             room_invite_friends_card_btn_holder_div_btn.addEventListener(
               "click",
               () => {
-                room_invite_friends_card_btn_holder_div_btn.innerHTML = "Invited";
+                room_invite_friends_card_btn_holder_div_btn.innerHTML =
+                  "Invited";
                 room_invite_friends_card_btn_holder_div_btn.disabled = true;
-                socket.emit("send_room_request",{user_id:res.data[0].friends[i]._id,socket_id:res.data[0].friends[i].socket_id});
+                socket.emit("send_room_request", {
+                  user_id: res.data[0].friends[i]._id,
+                  socket_id: res.data[0].friends[i].socket_id,
+                });
               }
             );
 
@@ -1023,7 +1187,7 @@
               room_invite_friends_card_btn_holder_div
             );
             parent.appendChild(room_invite_card);
-          } 
+          }
         }
       });
       document.getElementById("room_invite_friends_con").style.display = "flex";
@@ -1034,15 +1198,15 @@
     }
 
     //custom alert
-    function showAlert(msg){
+    function showAlert(msg) {
       document.getElementById("custom_room_alert").style.display = "flex";
       document.getElementById("alert_msg").innerHTML = msg;
-      setTimeout(()=>{
+      setTimeout(() => {
         closeAlert();
-      },2000);
+      }, 2000);
     }
     //close alert
-    function closeAlert(){
+    function closeAlert() {
       document.getElementById("custom_room_alert").style.display = "none";
     }
   </script>

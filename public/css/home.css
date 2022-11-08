@@ -1256,13 +1256,24 @@ footer .song_controls_holder {
   display: flex;
   justify-content: flex-start;
   align-items: center;
+  position: relative;
 }
-.song_controls_holder #audio {
+ #audio_hider{
+  position: absolute;
+  background-color: var(--primary);
+  opacity: 0;
+  display: none;
+  height: 100%;
+  z-index: 4;
+  width: 45%;
+  margin-left: 15%;
+ }
+.song_controls_holder #audio_tag {
   width: 45%;
   margin-left: 15%;
 }
 
-#audio::-webkit-media-controls-panel {
+#audio_tag::-webkit-media-controls-panel {
   background-color: var(--tertiary);
 }
 
