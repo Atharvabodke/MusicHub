@@ -248,7 +248,7 @@ io.on("connection", (socket) => {
         }
       );
 
-      user = await UserSchema.find({_id:socket.handshake.session._id});
+      user = await UserSchema.find({ _id: socket.handshake.session._id });
     }
 
     async function updateRoom() {
@@ -296,28 +296,79 @@ io.on("connection", (socket) => {
     }
   });
 
+  //on end room
+  socket.on("endRoom", (data) => {
+    mongoose.connect(db_url).then(() => {
+      deleteRoom().then(() => {
+        io.sockets
+          .in("room-" + socket.handshake.session.room_name)
+          .emit("roomClosed", "working");
+      });
+    });
+
+    async function deleteRoom() {
+      await RoomSchema.deleteOne({ _id: socket.handshake.session.room_name });
+    }
+  });
+
+  //leave room final
+  socket.on("leaveRoomFinal", (data) => {
+    mongoose.connect(db_url).then(() => {
+      updateUserRoom().then(() => {
+        socket.leave("room-" + socket.handshake.session.room_name);
+        socket.emit("leftRoom", true);
+      });
+    });
+
+    async function updateUserRoom() {
+      await UserSchema.updateOne(
+        { _id: socket.handshake.session._id },
+        {
+          $set: { room_status: false, room_id: [] },
+        }
+      );
+    }
+  });
   //on new song room
-  socket.on("new_song_started",(data)=>{
-    socket.to("room-"+socket.handshake.session.room_name).emit("room_new_song_started",{song_name:data.song_name,song_path:data.song_path,song_artist:data.song_artist});
+  socket.on("new_song_started", (data) => {
+    socket
+      .to("room-" + socket.handshake.session.room_name)
+      .emit("room_new_song_started", {
+        song_name: data.song_name,
+        song_path: data.song_path,
+        song_artist: data.song_artist,
+      });
   });
 
   //on song pause
-  socket.on("pauseSong",(data)=>{
-    socket.to("room-"+socket.handshake.session.room_name).emit("pausedSong",data);
+  socket.on("pauseSong", (data) => {
+    socket
+      .to("room-" + socket.handshake.session.room_name)
+      .emit("pausedSong", data);
   });
   //on play pause
-  socket.on("playSong",(data)=>{
-    socket.to("room-"+socket.handshake.session.room_name).emit("playedSong",data);
+  socket.on("playSong", (data) => {
+    socket
+      .to("room-" + socket.handshake.session.room_name)
+      .emit("playedSong", data);
   });
 
   //on song seeked
-  socket.on("seekSong",(data)=>{
-    socket.to("room-"+socket.handshake.session.room_name).emit("seekedSong",data);
+  socket.on("seekSong", (data) => {
+    socket
+      .to("room-" + socket.handshake.session.room_name)
+      .emit("seekedSong", data);
   });
 
   //on send chat
-  socket.on("sendChat",(data)=>{
-    io.sockets.in("room-"+socket.handshake.session.room_name).emit("chatRecived",{msg:data,sender_name:socket.handshake.session.username,sender_id:socket.handshake.session._id});
+  socket.on("sendChat", (data) => {
+    io.sockets
+      .in("room-" + socket.handshake.session.room_name)
+      .emit("chatRecived", {
+        msg: data,
+        sender_name: socket.handshake.session.username,
+        sender_id: socket.handshake.session._id,
+      });
   });
 
   // on disconnect
@@ -528,6 +579,20 @@ app.get("/declineRoom", (req, res) => {
       { _id: req.session._id },
       { _id: 0, room_request: 1 }
     );
+  }
+});
+
+//get room info
+app.get("/getRoomInfo", (req, res) => {
+  let room;
+  mongoose.connect(db_url).then(() => {
+    getRoomInfo().then(() => {
+      console.log(room);
+      res.send(room);
+    });
+  });
+  async function getRoomInfo() {
+    room = await RoomSchema.find({ _id: req.session.room_name }).populate("in_room");
   }
 });
 
