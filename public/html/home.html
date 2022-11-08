@@ -203,57 +203,7 @@
                   >
                     <div id="chat_con_text_list" class="chat_con_text_list">
                       <!--song room text card-->
-                      <!--test-->
-                      <div class="song_room_text_card">
-                        <div class="song_room_text_card_sender_name">
-                          <p>Ved</p>
-                        </div>
-                        <div class="song_room_text_card_sender_msg">
-                          <p>
-                            hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
-                          </p>
-                        </div>
-                      </div>
-                      <div class="song_room_text_card">
-                        <div class="song_room_text_card_sender_name">
-                          <p>Yash</p>
-                        </div>
-                        <div class="song_room_text_card_sender_msg">
-                          <p>
-                            hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
-                          </p>
-                        </div>
-                      </div>
-                      <div class="song_room_text_card">
-                        <div class="song_room_text_card_sender_name">
-                          <p>Deepak</p>
-                        </div>
-                        <div class="song_room_text_card_sender_msg">
-                          <p>
-                            hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
-                          </p>
-                        </div>
-                      </div>
-                      <div class="song_room_text_card sender">
-                        <div class="song_room_text_card_sender_name">
-                          <p class="sender_name">Atharva</p>
-                        </div>
-                        <div class="song_room_text_card_sender_msg">
-                          <p>
-                            hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
-                          </p>
-                        </div>
-                      </div>
-                      <div class="song_room_text_card">
-                        <div class="song_room_text_card_sender_name">
-                          <p>Vansh</p>
-                        </div>
-                        <div class="song_room_text_card_sender_msg">
-                          <p>
-                            hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
-                          </p>
-                        </div>
-                      </div>
+
                       <!--song room text card end-->
                     </div>
                     <div class="chat_con_text_control">
@@ -886,6 +836,7 @@
     }
     // on created room
     socket.on("createdRoom", () => {
+      document.getElementById("joined_room_count").innerHTML = 1;
       document.getElementById("room_list_ini").style.display = "none";
       document.getElementById("room_content").style.display = "flex";
       document.getElementById("room_title").innerHTML =
@@ -917,23 +868,28 @@
     //on recived chat
     socket.on("chatRecived", (data) => {
       const chat_con_parent = document.getElementById("chat_con_text_list");
-      //test
       //create text card
       const song_room_text_card = document.createElement("div");
       song_room_text_card.classList.add("song_room_text_card");
-      if(data.sender_id == sessionStorage.getItem("_id")){
+      if (data.sender_id == sessionStorage.getItem("_id")) {
         song_room_text_card.classList.add("sender");
       }
 
       //song room sender name div
       const song_room_sender_name_div = document.createElement("div");
-      song_room_sender_name_div.classList.add("song_room_text_card_sender_name");
+      song_room_sender_name_div.classList.add(
+        "song_room_text_card_sender_name"
+      );
       const song_room_text_card_sender_name_p = document.createElement("p");
-      if(data.sender_id == sessionStorage.getItem("_id")){
+      if (data.sender_id == sessionStorage.getItem("_id")) {
         song_room_text_card_sender_name_p.classList.add("sender_name");
       }
-      const song_room_text_card_sender_name_p_text = document.createTextNode(data.sender_name);
-      song_room_text_card_sender_name_p.appendChild(song_room_text_card_sender_name_p_text);
+      const song_room_text_card_sender_name_p_text = document.createTextNode(
+        data.sender_name
+      );
+      song_room_text_card_sender_name_p.appendChild(
+        song_room_text_card_sender_name_p_text
+      );
       song_room_sender_name_div.appendChild(song_room_text_card_sender_name_p);
 
       //song room sender msg div
@@ -1031,11 +987,16 @@
     //leave Room
     function leaveRoom() {
       if (sessionStorage.getItem("room_host") == 1) {
-        alert("you are the host");
+        socket.emit("endRoom", true);
       } else {
         socket.emit("leaveRoomReq");
       }
     }
+
+    //on room closed
+    socket.on("roomClosed", (data) => {
+      socket.emit("leaveRoomFinal", true);
+    });
 
     //on left room
     socket.on("leftRoom", (data) => {
@@ -1069,6 +1030,8 @@
       }
       id.classList.add("active");
       document.getElementById(tab_id).classList.add("active_container");
+
+      //create joined room list
     }
 
     //room invite container
